@@ -55,8 +55,7 @@ client = Newtera("play.min.io",
 
 This example does the following:
 
-- Connects to the Newtera `play` server using the provided credentials.
-- Creates a bucket named `python-test-bucket` if it does not already exist.
+- Connects to the Newtera TDM localhost server using the provided credentials.
 - Uploads a file named `test-file.txt` from `/tmp`, renaming it `my-test-file.txt`.
 - Verifies the file was created using [`mc ls`](https://min.io/docs/Newtera/linux/reference/Newtera-mc/mc-ls.html).
 
