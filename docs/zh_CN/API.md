@@ -5,10 +5,10 @@
 ## MinIO
 
 ```py
-from minio import Minio
-from minio.error import ResponseError
+from newtera import Newtera
+from newtera.error import ResponseError
 
-minioClient = Minio('play.min.io',
+minioClient = Newtera('play.min.io',
                   access_key='Q3AM3UQ867SPQQA43P2F',
                   secret_key='zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
                   secure=True)
@@ -17,38 +17,24 @@ minioClient = Minio('play.min.io',
 ## AWS S3
 
 ```py
-from minio import Minio
-from minio.error import ResponseError
+from newtera import Newtera
+from newtera.error import ResponseError
 
-s3Client = Minio('s3.amazonaws.com',
+s3Client = Newtera('s3.amazonaws.com',
                  access_key='YOUR-ACCESSKEYID',
                  secret_key='YOUR-SECRETACCESSKEY',
                  secure=True)
 ```
 
 
-
-|操作存储桶 | 操作对象| Presigned操作 | 存储桶策略/通知
-|:---|:---|:---|:---|
-| [`make_bucket`](#make_bucket) | [`get_object`](#get_object) | [`presigned_get_object`](#presigned_get_object) | [`get_bucket_policy`](#get_bucket_policy) |
-| [`list_buckets`](#list_buckets) | [`put_object`](#put_object) | [`presigned_put_object`](#presigned_put_object) | [`set_bucket_policy`](#set_bucket_policy) |
-| [`bucket_exists`](#bucket_exists) | [`copy_object`](#copy_object) | [`presigned_post_policy`](#presigned_post_policy) | [`get_bucket_notification`](#get_bucket_notification) |
-| [`remove_bucket`](#remove_bucket) | [`stat_object`](#stat_object) | | [`set_bucket_notification`](#set_bucket_notification) |
-| [`list_objects`](#list_objects) | [`remove_object`](#remove_object) | | [`remove_all_bucket_notification`](#remove_all_bucket_notification) |
-| [`list_objects_v2`](#list_objects_v2) | [`remove_objects`](#remove_objects) | | [`listen_bucket_notification`](#listen_bucket_notification) |
-| [`list_incomplete_uploads`](#list_incomplete_uploads) | [`remove_incomplete_upload`](#remove_incomplete_upload) | | |
-| | [`fput_object`](#fput_object) | | |
-| | [`fget_object`](#fget_object) | | |
-| | [`get_partial_object`](#get_partial_object) | | |
-
 ## 1. 构造函数
 
 <a name="MinIO"></a>
-### Minio(endpoint, access_key=None, secret_key=None, secure=True, region=None, http_client=None)
+### Newtera(endpoint, access_key=None, secret_key=None, secure=True, region=None, http_client=None)
 
 |   |
 |---|
-| `Minio(endpoint, access_key=None, secret_key=None, secure=True, region=None, http_client=None)`  |
+| `Newtera(endpoint, access_key=None, secret_key=None, secure=True, region=None, http_client=None)`  |
 | 初使化一个新的client对象。  |
 
 参数
@@ -68,17 +54,17 @@ __示例__
 ### MinIO
 
 ```py
-from minio import Minio
-from minio.error import ResponseError
+from newtera import Newtera
+from newtera.error import ResponseError
 
-minioClient = Minio('play.min.io',
+minioClient = Newtera('play.min.io',
                     access_key='Q3AM3UQ867SPQQA43P2F',
                     secret_key='zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG')
 ```
 
 ```py
-from minio import Minio
-from minio.error import ResponseError
+from newtera import Newtera
+from newtera.error import ResponseError
 import urllib3
 
 httpClient = urllib3.ProxyManager(
@@ -91,7 +77,7 @@ httpClient = urllib3.ProxyManager(
                     status_forcelist=[500, 502, 503, 504]
                 )
             )
-minioClient = Minio('your_hostname.sampledomain.com:9000',
+minioClient = Newtera('your_hostname.sampledomain.com:9000',
                     access_key='ACCESS_KEY',
                     secret_key='SECRET_KEY',
                     secure=True,
@@ -101,45 +87,15 @@ minioClient = Minio('your_hostname.sampledomain.com:9000',
 ### AWS S3
 
 ```py
-from minio import Minio
-from minio.error import ResponseError
+from newtera import Newtera
+from newtera.error import ResponseError
 
-s3Client = Minio('s3.amazonaws.com',
+s3Client = Newtera('s3.amazonaws.com',
                  access_key='ACCESS_KEY',
                  secret_key='SECRET_KEY')
 ```
 
 ## 2. 操作存储桶
-
-<a name="make_bucket"></a>
-### make_bucket(bucket_name, location='us-east-1')
-创建一个存储桶。
-
-参数
-
-|参数   | 类型   |描述   |
-|---|---|---|
-|`bucket_name`  | _string_  | 存储桶名称。 |
-| `location`  |  _string_ | 存储桶被创建的region(地区)，默认是us-east-1(美国东一区)，下面列举的是其它合法的值： |
-| | |us-east-1 |
-| | |us-west-1 |
-| | |us-west-2 |
-| | |eu-west-1 |
-| | | eu-central-1|
-| | | ap-southeast-1|
-| | | ap-northeast-1|
-| | | ap-southeast-2|
-| | | sa-east-1|
-| | | cn-north-1|
-
-__示例__
-
-```py
-try:
-    minioClient.make_bucket("mybucket", location="us-east-1")
-except ResponseError as err:
-    print(err)
-```
 
 <a name="list_buckets"></a>
 ### list_buckets()
@@ -317,197 +273,6 @@ for obj in uploads:
     print(obj.bucket_name, obj.object_name, obj.upload_id, obj.size)
 ```
 
-<a name="get_bucket_policy"></a>
-### get_bucket_policy(bucket_name, prefix)
-获取存储桶的当前策略。
-
-参数
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``bucket_name``   | _string_  |存储桶名称。|
-|``prefix``   |_string_    |对象的名称前缀。 |
-
-__返回值__
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``Policy``   | _minio.policy.Policy_   |Policy枚举：Policy.READ_ONLY，Policy.WRITE_ONLY，Policy.READ_WRITE或 Policy.NONE。   |
-
-__示例__
-
-
-```py
-# Get current policy of all object paths in bucket that begin with my-prefixname.
-policy = minioClient.get_bucket_policy('mybucket',
-                                       'my-prefixname')
-print(policy)
-```
-
-<a name="set_bucket_policy"></a>
-### set_bucket_policy(bucket_name, prefix, policy)
-
-给指定的存储桶设置存储桶策略。如果`prefix`不为空，则该存储桶策略仅对匹配这个指定前缀的对象生效。
-
-参数
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``bucket_name``   | _string_  |存储桶名称。|
-|``prefix``   |_string_ | 对象的名称前缀。 |
-|``Policy``   | _minio.policy.Policy_   |Policy枚举：Policy.READ_ONLY，Policy.WRITE_ONLY，Policy.READ_WRITE或 Policy.NONE。   |
-
-
-__示例__
-
-
-```py
-# Set policy Policy.READ_ONLY to all object paths in bucket that begin with my-prefixname.
-minioClient.set_bucket_policy('mybucket',
-                              'my-prefixname',
-                              Policy.READ_ONLY)
-```
-
-<a name="get_bucket_notification"></a>
-### get_bucket_notification(bucket_name)
-
-获取存储桶上的通知配置。
-
-参数
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``bucket_name``   | _string_  |存储桶名称。|
-
-__返回值__
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``notification``   | _dict_   | 如果没有通知配置，则返回一个空的dictionary，否则就和set_bucket_notification的参数结构一样。  |
-
-__示例__
-
-
-```py
-# Get the notifications configuration for a bucket.
-notification = minioClient.get_bucket_notification('mybucket')
-# If no notification is present on the bucket:
-# notification == {}
-```
-
-<a name="set_bucket_notification"></a>
-### set_bucket_notification(bucket_name, notification)
-
-给存储桶设置通知配置。
-
-参数
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``bucket_name``   | _string_  |存储桶名称。|
-|``notification``  | _dict_    |非空dictionary，内部结构格式如下：|
-
-`notification`参数格式如下：
-
-* (dict) --
-  * __TopicConfigurations__ (list) -- 服务配置项目的可选列表，指定了AWS SNS Topics做为通知的目标。
-  * __QueueConfigurations__ (list) -- 服务配置项目的可选列表，指定了AWS SQS Queues做为通知的目标。
-  * __CloudFunctionconfigurations__ (list) -- 服务配置项目的可选列表，指定了AWS Lambda Cloud functions做为通知的目标。
-
-以上项目中至少有一项需要在`notification`参数中指定。
-
-上面提到的“服务配置项目”具有以下结构：
-
-* (dict) --
-  * __Id__ (string) -- 配置项的可选ID，如果不指定，服务器自动生成。
-  * __Arn__ (string) -- 指定特定的Topic/Queue/Cloud Function identifier。
-  * __Events__ (list) -- 一个含有事件类型字符串的非空列表，事件类型取值如下：
-      _'s3:ReducedRedundancyLostObject'_,
-      _'s3:ObjectCreated:*'_,
-      _'s3:ObjectCreated:Put'_,
-      _'s3:ObjectCreated:Post'_,
-      _'s3:ObjectCreated:Copy'_,
-      _'s3:ObjectCreated:CompleteMultipartUpload'_,
-      _'s3:ObjectRemoved:*'_,
-      _'s3:ObjectRemoved:Delete'_,
-      _'s3:ObjectRemoved:DeleteMarkerCreated'_
-  * __Filter__ (dict) -- 一个可选的dictionary容器，里面含有基于键名称过滤的规则的对象。
-    * __Key__ (dict) -- dictionary容器，里面含有基于键名称前缀和后缀过滤的规则的对象。
-      * __FilterRules__ (list) -- 指定过滤规则标准的容器列表。
-        * (dict) -- 键值对的dictionary容器，指定单个的过滤规则。
-          * __Name__ (string) -- 对象的键名称，值为“前缀”或“后缀”。
-          * __Value__ (string) -- 指定规则适用的值。
-
-
-没有返回值。如果目标服务报错，会抛出`ResponseError`。如果有验证错误，会抛出`InvalidArgumentError`或者`TypeError`。输入参数的configuration不能为空 - 为了删除存储桶上的通知配置，参考`remove_all_bucket_notification()` API。
-
-__示例__
-
-
-```py
-notification = {
-    'QueueConfigurations': [
-        {
-            'Id': '1',
-            'Arn': 'arn1',
-            'Events': ['s3:ObjectCreated:*'],
-            'Filter': {
-                'Key': {
-                    'FilterRules': [
-                        {
-                            'Name': 'prefix',
-                            'Value': 'abc'
-                        }
-                    ]
-                }
-            }
-        }
-    ],
-    'TopicConfigurations': [
-        {
-            'Arn': 'arn2',
-            'Events': ['s3:ObjectCreated:*'],
-            'Filter': {
-                'Key': {
-                    'FilterRules': [
-                        {
-                            'Name': 'suffix',
-                            'Value': '.jpg'
-                        }
-                    ]
-                }
-            }
-        }
-    ],
-    'CloudFunctionConfigurations': [
-        {
-            'Arn': 'arn3',
-            'Events': ['s3:ObjectRemoved:*'],
-            'Filter': {
-                'Key': {
-                    'FilterRules': [
-                        {
-                            'Name': 'suffix',
-                            'Value': '.jpg'
-                        }
-                    ]
-                }
-            }
-        }
-    ]
-}
-
-
-try:
-    minioClient.set_bucket_notification('mybucket', notification)
-except ResponseError as err:
-    # handle error response from service.
-    print(err)
-except (ArgumentError, TypeError) as err:
-    # should happen only during development. Fix the notification argument
-    print(err)
-```
-
 <a name="remove_all_bucket_notification"></a>
 ### remove_all_bucket_notification(bucket_name)
 
@@ -523,40 +288,6 @@ except (ArgumentError, TypeError) as err:
 
 __示例__
 
-
-```py
-# Remove all the notifications config for a bucket.
-minioClient.remove_all_bucket_notification('mybucket')
-```
-
-<a name="listen_bucket_notification"></a>
-### listen_bucket_notification(bucket_name, prefix, suffix, events)
-
-监听存储桶上的通知，可以额外提供前缀、后缀和时间类型来进行过滤。使用该API前不需要先设置存储桶通知。这是一个MinIO的扩展API，MinIO Server会基于过来的请求使用唯一标识符自动注册或者注销。
-
-当通知发生时，产生事件，调用者需要遍历读取这些事件。
-
-参数
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``bucket_name``   | _string_  |监听事件通知的存储桶名称。|
-|``prefix`` | _string_ | 过滤通知的对象名称前缀。|
-|``suffix`` | _string_  | 过滤通知的对象名称后缀。|
-|``events`` | _list_ | 启用特定事件类型的通知。 |
-
-完整示例请看 [这里](https://raw.githubusercontent.com/minio/minio-py/master/examples/listen_notification.py)。
-
-```py
-# Put a file with default content-type.
-events = minioClient.listen_bucket_notification('my-bucket', 'my-prefix/',
-                                                '.my-suffix',
-                                                ['s3:ObjectCreated:*',
-                                                 's3:ObjectRemoved:*',
-                                                 's3:ObjectAccessed:*'])
-for event in events:
-    print event
-```
 
 ## 3. 操作对象
 <a name="get_object"></a>
@@ -658,58 +389,6 @@ __示例__
 # Get a full object and prints the original object stat information.
 try:
     print(minioClient.fget_object('mybucket', 'myobject', '/tmp/myobject'))
-except ResponseError as err:
-    print(err)
-```
-
-<a name="copy_object"></a>
-### copy_object(bucket_name, object_name, object_source, copy_conditions=None, metadata=None)
- 拷贝对象存储服务上的源对象到一个新对象。
-
-注意：本API支持的最大文件大小是5GB。
-
-参数
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``bucket_name``   |_string_   |新对象的存储桶名称。  |
-|``object_name``   |_string_    | 新对象的名称。  |
-|``object_source``   |_string_   |要拷贝的源对象的存储桶名称+对象名称。 |
-|``copy_conditions`` |_CopyConditions_ | 拷贝操作需要满足的一些条件（可选，默认为None）。 |
-
-
-__示例__
-
-以下所有条件都是允许的，并且可以组合使用。
-
-```py
-import time
-from datetime import datetime
-from minio import CopyConditions
-
-copy_conditions = CopyConditions()
-# Set modified condition, copy object modified since 2014 April.
-t = (2014, 4, 0, 0, 0, 0, 0, 0, 0)
-mod_since = datetime.utcfromtimestamp(time.mktime(t))
-copy_conditions.set_modified_since(mod_since)
-
-# Set unmodified condition, copy object unmodified since 2014 April.
-copy_conditions.set_unmodified_since(mod_since)
-
-# Set matching ETag condition, copy object which matches the following ETag.
-copy_conditions.set_match_etag("31624deb84149d2f8ef9c385918b653a")
-
-# Set matching ETag except condition, copy object which does not match the following ETag.
-copy_conditions.set_match_etag_except("31624deb84149d2f8ef9c385918b653a")
-
-# Set metadata
-metadata = {"test-key": "test-data"}
-
-try:
-    copy_result = minioClient.copy_object("mybucket", "myobject",
-                                          "/my-sourcebucketname/my-sourceobjectname",
-                                          copy_conditions,metadata=metadata)
-    print(copy_result)
 except ResponseError as err:
     print(err)
 ```
@@ -1000,7 +679,7 @@ except ResponseError as err:
 ```py
 from datetime import datetime, timedelta
 
-from minio import PostPolicy
+from newtera import PostPolicy
 post_policy = PostPolicy()
 
 # Apply upload policy restrictions:
@@ -1044,6 +723,6 @@ print(' '.join(curl_cmd))
 
 ## 5. 了解更多
 
-- [MinIO Golang Client SDK快速入门](https://min.io/docs/minio/linux/developers/go/minio-go.html)
-- [MinIO Java Client SDK快速入门](https://min.io/docs/minio/linux/developers/java/minio-java.html)
-- [MinIO JavaScript Client SDK快速入门](https://min.io/docs/minio/linux/developers/javascript/minio-javascript.html)
+- [MinIO Golang Client SDK快速入门](https://min.io/docs/newtera/linux/developers/go/newtera-go.html)
+- [MinIO Java Client SDK快速入门](https://min.io/docs/newtera/linux/developers/java/newtera-java.html)
+- [MinIO JavaScript Client SDK快速入门](https://min.io/docs/newtera/linux/developers/javascript/newtera-javascript.html)

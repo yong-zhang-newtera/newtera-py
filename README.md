@@ -64,7 +64,7 @@ This example does the following:
 ```py
 # file_uploader.py Newtera Python SDK example
 from Newtera import Newtera
-from Newtera.error import S3Error
+from Newtera.error import NewteraError
 
 def main():
     # Create a client with the Newtera server playground, its access key
@@ -83,10 +83,7 @@ def main():
     
     # Make the bucket if it doesn't exist.
     found = client.bucket_exists(bucket_name)
-    if not found:
-        client.make_bucket(bucket_name)
-        print("Created bucket", bucket_name)
-    else:
+    if found:
         print("Bucket", bucket_name, "already exists")
 
     # Upload the file, renaming it in the process
@@ -101,7 +98,7 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except S3Error as exc:
+    except NewteraError as exc:
         print("error occurred.", exc)
 ```
 

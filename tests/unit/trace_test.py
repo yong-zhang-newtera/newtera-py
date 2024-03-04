@@ -16,10 +16,10 @@
 
 from unittest import TestCase
 
-from minio import Minio
+from newtera import Newtera
 
 
 class TraceTest(TestCase):
     def test_bucket_is_string(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(ValueError, client.trace_on, None)
