@@ -16,33 +16,33 @@
 
 from unittest import TestCase
 
-from minio import Minio
+from newtera import Newtera
 
 
 class PutObjectTest(TestCase):
     def test_object_is_string(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(
             TypeError,
             client.put_object, 'hello', 1234, 1, iter([1, 2, 3])
         )
 
     def test_object_is_not_empty_string(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(
             ValueError,
             client.put_object, 'hello', ' \t \n ', 1, iter([1, 2, 3])
         )
 
     def test_length_is_string(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(
             TypeError,
             client.put_object, 'hello', 1234, '1', iter([1, 2, 3])
         )
 
     def test_length_is_not_empty_string(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(
             ValueError,
             client.put_object, 'hello', ' \t \n ', -1, iter([1, 2, 3])

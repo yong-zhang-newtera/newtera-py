@@ -17,23 +17,23 @@
 import unittest.mock as mock
 from unittest import TestCase
 
-from minio import Minio
-from minio.api import _DEFAULT_USER_AGENT
+from newtera import Newtera
+from newtera.api import _DEFAULT_USER_AGENT
 
 from .minio_mocks import MockConnection, MockResponse
 
 
 class StatObject(TestCase):
     def test_object_is_string(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(TypeError, client.stat_object, 'hello', 1234)
 
     def test_object_is_not_empty_string(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(ValueError, client.stat_object, 'hello', '  \t \n  ')
 
     def test_stat_object_invalid_name(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(ValueError, client.stat_object, 'AB#CD', 'world')
 
     @mock.patch('urllib3.PoolManager')
@@ -48,9 +48,9 @@ class StatObject(TestCase):
         mock_connection.return_value = mock_server
         mock_server.mock_add_request(
             MockResponse('HEAD',
-                         'https://localhost:9000/hello/world',
+                         'https://localhost:8080/hello/world',
                          {'User-Agent': _DEFAULT_USER_AGENT}, 200,
                          response_headers=mock_headers)
         )
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         client.stat_object('hello', 'world')

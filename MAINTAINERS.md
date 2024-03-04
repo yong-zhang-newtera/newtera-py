@@ -3,17 +3,17 @@
 ## Responsibilities
 Please go through this link [Maintainer Responsibility](https://gist.github.com/abperiasamy/f4d9b31d3186bbd26522)
 
-### Setup your minio-py Github Repository
-Fork [minio-py upstream](https://github.com/minio/minio-py/fork) source repository to your own personal repository.
+### Setup your newtera-py Github Repository
+Fork [newtera-py upstream](https://github.com/newtera/newtera-py/fork) source repository to your own personal repository.
 ```sh
-$ git clone git@github.com:minio/minio-py
-$ cd minio-py
+$ git clone git@github.com:newtera/newtera-py
+$ cd newtera-py
 $ pip install --user --upgrade twine
 ```
 
 ### Modify package version
 ```sh
-$ cat minio/__init__.py
+$ cat newtera/__init__.py
 ...
 ...
 __version__ = '2.2.5'
@@ -41,7 +41,7 @@ index-servers =
     pypi
 
 [pypi]
-username:minio
+username:newtera
 password:**REDACTED**
 EOF
 
@@ -50,10 +50,10 @@ EOF
 #### Sign
 Sign the release artifacts, this step requires you to have access to MinIO's trusted private key.
 ```sh
-$ export GNUPGHOME=/media/${USER}/minio/trusted
-$ gpg --detach-sign -a dist/minio-2.2.5.tar.gz
-$ gpg --detach-sign -a dist/minio-2.2.5.linux-x86_64.tar.gz
-$ gpg --detach-sign -a dist/minio-2.2.5-py2.py3-none-any.whl
+$ export GNUPGHOME=/media/${USER}/newtera/trusted
+$ gpg --detach-sign -a dist/newtera-2.2.5.tar.gz
+$ gpg --detach-sign -a dist/newtera-2.2.5.linux-x86_64.tar.gz
+$ gpg --detach-sign -a dist/newtera-2.2.5-py2.py3-none-any.whl
 ```
 
 #### Upload to pypi
@@ -65,14 +65,14 @@ $ twine upload dist/*
 ### Tag
 Tag and sign your release commit, additionally this step requires you to have access to MinIO's trusted private key.
 ```
-$ export GNUPGHOME=/media/${USER}/minio/trusted
+$ export GNUPGHOME=/media/${USER}/newtera/trusted
 $ git tag -s 2.2.5
 $ git push
 $ git push --tags
 ```
 
 ### Announce
-Announce new release by adding release notes at https://github.com/minio/minio-py/releases from `trusted@min.io` account. Release notes requires two sections `highlights` and `changelog`. Highlights is a bulleted list of salient features in this release and Changelog contains list of all commits since the last release.
+Announce new release by adding release notes at https://github.com/newtera/newtera-py/releases from `trusted@min.io` account. Release notes requires two sections `highlights` and `changelog`. Highlights is a bulleted list of salient features in this release and Changelog contains list of all commits since the last release.
 
 To generate `changelog`
 ```sh

@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from minio import Minio
-from minio.sse import SseCustomerKey
+from newtera import Newtera
+from newtera.sse import SseCustomerKey
 
-client = Minio(
+client = Newtera(
     "play.min.io",
     access_key="Q3AM3UQ867SPQQA43P2F",
     secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",

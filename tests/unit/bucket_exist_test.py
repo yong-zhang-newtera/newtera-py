@@ -17,24 +17,24 @@
 import unittest.mock as mock
 from unittest import TestCase
 
-from minio import Minio
-from minio.api import _DEFAULT_USER_AGENT
-from minio.error import S3Error
+from newtera import Newtera
+from newtera.api import _DEFAULT_USER_AGENT
+from newtera.error import NewteraError
 
 from .minio_mocks import MockConnection, MockResponse
 
 
 class BucketExists(TestCase):
     def test_bucket_is_string(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(TypeError, client.bucket_exists, 1234)
 
     def test_bucket_is_not_empty_string(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(ValueError, client.bucket_exists, '  \t \n  ')
 
     def test_bucket_exists_invalid_name(self):
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         self.assertRaises(ValueError, client.bucket_exists, 'AB*CD')
 
     @mock.patch('urllib3.PoolManager')
@@ -43,12 +43,12 @@ class BucketExists(TestCase):
         mock_connection.return_value = mock_server
         mock_server.mock_add_request(
             MockResponse('HEAD',
-                         'https://localhost:9000/hello',
+                         'https://localhost:8080/hello',
                          {'User-Agent': _DEFAULT_USER_AGENT},
                          400)
         )
-        client = Minio('localhost:9000')
-        self.assertRaises(S3Error, client.bucket_exists, 'hello')
+        client = Newtera('localhost:8080')
+        self.assertRaises(NewteraError, client.bucket_exists, 'hello')
 
     @mock.patch('urllib3.PoolManager')
     def test_bucket_exists_works(self, mock_connection):
@@ -56,16 +56,16 @@ class BucketExists(TestCase):
         mock_connection.return_value = mock_server
         mock_server.mock_add_request(
             MockResponse('HEAD',
-                         'https://localhost:9000/hello',
+                         'https://localhost:8080/hello',
                          {'User-Agent': _DEFAULT_USER_AGENT},
                          200)
         )
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         result = client.bucket_exists('hello')
         self.assertTrue(result)
         mock_server.mock_add_request(
             MockResponse('HEAD',
-                         'https://localhost:9000/goodbye',
+                         'https://localhost:8080/goodbye',
                          {'User-Agent': _DEFAULT_USER_AGENT},
                          404)
         )

@@ -22,7 +22,7 @@ from setuptools import setup
 if sys.argv[-1] == "publish":
     sys.argv = sys.argv[:-1] + ["sdist", "upload"]
 
-with codecs.open("minio/__init__.py") as file:
+with codecs.open("newtera/__init__.py") as file:
     version = re.search(
         r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
         file.read(),
@@ -33,16 +33,16 @@ with codecs.open("README.md", encoding="utf-8") as file:
     readme = file.read()
 
 setup(
-    name="minio",
+    name="newtera",
     description="MinIO Python SDK for Amazon S3 Compatible Cloud Storage",
     author="MinIO, Inc.",
-    url="https://github.com/minio/minio-py",
-    download_url="https://github.com/minio/minio-py/releases",
+    url="https://github.com/newtera/newtera-py",
+    download_url="https://github.com/newtera/newtera-py/releases",
     author_email="dev@min.io",
     version=version,
     long_description_content_type="text/markdown",
-    package_dir={"minio": "minio"},
-    packages=["minio", "minio.credentials"],
+    package_dir={"newtera": "newtera"},
+    packages=["newtera", "newtera.credentials"],
     install_requires=["certifi", "urllib3", "argon2-cffi",
                       "pycryptodome", "typing-extensions"],
     tests_require=[],

@@ -18,8 +18,8 @@ import unittest.mock as mock
 from datetime import datetime, timezone
 from unittest import TestCase
 
-from minio import Minio
-from minio.api import _DEFAULT_USER_AGENT
+from newtera import Newtera
+from newtera.api import _DEFAULT_USER_AGENT
 
 from .minio_mocks import MockConnection, MockResponse
 
@@ -29,16 +29,16 @@ class ListBucketsTest(TestCase):
     def test_empty_list_buckets_works(self, mock_connection):
         mock_data = ('<ListAllMyBucketsResult '
                      'xmlns="http://s3.amazonaws.com/doc/2006-03-01/">'
-                     '<Buckets></Buckets><Owner><ID>minio</ID><DisplayName>'
-                     'minio</DisplayName></Owner></ListAllMyBucketsResult>')
+                     '<Buckets></Buckets><Owner><ID>newtera</ID><DisplayName>'
+                     'newtera</DisplayName></Owner></ListAllMyBucketsResult>')
         mock_server = MockConnection()
         mock_connection.return_value = mock_server
         mock_server.mock_add_request(
-            MockResponse('GET', 'https://localhost:9000/',
+            MockResponse('GET', 'https://localhost:8080/',
                          {'User-Agent': _DEFAULT_USER_AGENT},
                          200, content=mock_data.encode())
         )
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         buckets = client.list_buckets()
         count = 0
         for bucket in buckets:
@@ -53,17 +53,17 @@ class ListBucketsTest(TestCase):
                      '<CreationDate>2015-06-22T23:07:43.240Z</CreationDate>'
                      '</Bucket><Bucket><Name>world</Name>'
                      '<CreationDate>2015-06-22T23:07:56.766Z</CreationDate>'
-                     '</Bucket></Buckets><Owner><ID>minio</ID>'
-                     '<DisplayName>minio</DisplayName></Owner>'
+                     '</Bucket></Buckets><Owner><ID>newtera</ID>'
+                     '<DisplayName>newtera</DisplayName></Owner>'
                      '</ListAllMyBucketsResult>')
         mock_server = MockConnection()
         mock_connection.return_value = mock_server
         mock_server.mock_add_request(
-            MockResponse('GET', 'https://localhost:9000/',
+            MockResponse('GET', 'https://localhost:8080/',
                          {'User-Agent': _DEFAULT_USER_AGENT},
                          200, content=mock_data.encode())
         )
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         buckets = client.list_buckets()
         buckets_list = []
         count = 0

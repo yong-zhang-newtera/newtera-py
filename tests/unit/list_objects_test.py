@@ -18,8 +18,8 @@ import time
 import unittest.mock as mock
 from unittest import TestCase
 
-from minio import Minio
-from minio.api import _DEFAULT_USER_AGENT
+from newtera import Newtera
+from newtera.api import _DEFAULT_USER_AGENT
 
 from .minio_mocks import MockConnection, MockResponse
 
@@ -41,14 +41,14 @@ class ListObjectsTest(TestCase):
         mock_server.mock_add_request(
             MockResponse(
                 "GET",
-                "https://localhost:9000/bucket?delimiter=&encoding-type=url"
+                "https://localhost:8080/bucket?delimiter=&encoding-type=url"
                 "&list-type=2&max-keys=1000&prefix=",
                 {"User-Agent": _DEFAULT_USER_AGENT},
                 200,
                 content=mock_data.encode(),
             ),
         )
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         object_iter = client.list_objects('bucket', recursive=True)
         objects = []
         for obj in object_iter:
@@ -85,14 +85,14 @@ class ListObjectsTest(TestCase):
         mock_server.mock_add_request(
             MockResponse(
                 "GET",
-                "https://localhost:9000/bucket?delimiter=%2F&encoding-type=url"
+                "https://localhost:8080/bucket?delimiter=%2F&encoding-type=url"
                 "&list-type=2&max-keys=1000&prefix=",
                 {"User-Agent": _DEFAULT_USER_AGENT},
                 200,
                 content=mock_data.encode(),
             ),
         )
-        client = Minio('localhost:9000')
+        client = Newtera('localhost:8080')
         objects_iter = client.list_objects('bucket')
         objects = []
         for obj in objects_iter:

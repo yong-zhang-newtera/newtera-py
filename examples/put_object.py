@@ -19,12 +19,11 @@ from datetime import datetime, timedelta
 from urllib.request import urlopen
 
 from examples.progress import Progress
-from minio import Minio
-from minio.commonconfig import GOVERNANCE, Tags
-from minio.retention import Retention
-from minio.sse import SseCustomerKey, SseKMS, SseS3
+from newtera import Newtera
+from newtera.commonconfig import GOVERNANCE, Tags
+from newtera.sse import SseCustomerKey, SseKMS, SseS3
 
-client = Minio(
+client = Newtera(
     "play.min.io",
     access_key="Q3AM3UQ867SPQQA43P2F",
     secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
@@ -116,9 +115,6 @@ tags = Tags(for_object=True)
 tags["User"] = "jsmith"
 result = client.put_object(
     "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
-    tags=tags,
-    retention=Retention(GOVERNANCE, date),
-    legal_hold=True,
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(

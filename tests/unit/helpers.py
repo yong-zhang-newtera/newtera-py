@@ -18,7 +18,7 @@ from collections import namedtuple
 from unittest import TestCase
 from urllib.parse import urlunsplit
 
-from minio.helpers import BaseURL
+from newtera.helpers import BaseURL
 
 
 def generate_error(code, message, request_id, host_id,
