@@ -8,9 +8,9 @@
 from newtera import Newtera
 from newtera.error import ResponseError
 
-minioClient = Newtera('play.min.io',
-                  access_key='Q3AM3UQ867SPQQA43P2F',
-                  secret_key='zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
+minioClient = Newtera('localhost:8080',
+                  access_key='demo1',
+                  secret_key='888',
                   secure=True)
 ```
 
@@ -57,9 +57,9 @@ __示例__
 from newtera import Newtera
 from newtera.error import ResponseError
 
-minioClient = Newtera('play.min.io',
-                    access_key='Q3AM3UQ867SPQQA43P2F',
-                    secret_key='zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG')
+minioClient = Newtera('localhost:8080',
+                    access_key='demo1',
+                    secret_key='888')
 ```
 
 ```py
@@ -136,24 +136,6 @@ except ResponseError as err:
     print(err)
 ```
 
-<a name="remove_bucket"></a>
-### remove_bucket(bucket_name)
-删除存储桶。
-
-参数
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``bucket_name``   |_string_ |存储桶名称。 |
-
-__示例__
-
-```py
-try:
-    minioClient.remove_bucket("mybucket")
-except ResponseError as err:
-    print(err)
-```
 
 <a name="list_objects"></a>
 ### list_objects(bucket_name, prefix=None, recursive=False)
@@ -196,99 +178,6 @@ for obj in objects:
           obj.etag, obj.size, obj.content_type)
 ```
 
-<a name="list_objects_v2"></a>
-### list_objects_v2(bucket_name, prefix=None, recursive=False)
-使用V2版本API列出一个存储桶中的对象。
-
-参数
-
-| 参数  |  类型 | 描述  |
-|:---|:---|:---|
-|``bucket_name``   |_string_ | 存储桶名称。  |
-|``prefix``   | _string_ |用于过滤的对象名称前缀。可选项，默认为None。 |
-|``recursive``   | _bool_ |`True`代表递归查找，`False`代表类似文件夹查找，以'/'分隔，不查子文件夹。（可选，默认值是`False`）。   |
-
-__返回值__
-
-| 参数  |  类型 | 描述  |
-|:---|:---|:---|
-|``object``   |_Object_ | 该存储桶中所有对象的Iterator，对象的格式如下：  |
-
-| 参数  |  类型 | 描述  |
-|:---|:---|:---|
-|``object.bucket_name``  | _string_ | 对象所在存储桶的名称。|
-|``object.object_name``  | _string_ | 对象的名称。|
-|``object.is_dir``       |  _bool_  | `True`代表列举的对象是文件夹（对象前缀）， `False`与之相反。|
-|``object.size`` | _int_ | 对象的大小。|
-|``object.etag`` | _string_ | 对象的etag值。|
-|``object.last_modified`` |_datetime.datetime_ | 最后修改时间。|
-|``object.content_type`` | _string_ | 对象的content-type。|
-|``object.metadata``     |  _dict_  | 对象的其它元数据。|
-
-
-__示例__
-
-```py
-# List all object paths in bucket that begin with my-prefixname.
-objects = minioClient.list_objects_v2('mybucket', prefix='my-prefixname',
-                              recursive=True)
-for obj in objects:
-    print(obj.bucket_name, obj.object_name.encode('utf-8'), obj.last_modified,
-          obj.etag, obj.size, obj.content_type)
-```
-
-<a name="list_incomplete_uploads"></a>
-### list_incomplete_uploads(bucket_name, prefix, recursive=False)
-列出存储桶中未完整上传的对象。
-
-参数
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``bucket_name``   | _string_|存储桶名称。|
-|``prefix``   |_string_ |用于过滤的对象名称前缀。 |
-|``recursive`` |_bool_ |`True`代表递归查找，`False`代表类似文件夹查找，以'/'分隔，不查子文件夹。（可选，默认值是`False`）。   |
-
-__返回值__
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``multipart_obj``   | _Object_  |multipart对象的Iterator，格式如下：|
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``multipart_obj.object_name``   | _string_  |未完整上传的对象的名称。|
-|``multipart_obj.upload_id``   | _string_  |未完整上传的对象的上传ID。|
-|``multipart_obj.size``   | _int_  |未完整上传的对象的大小。|
-
-__示例__
-
-
-```py
-# List all object paths in bucket that begin with my-prefixname.
-uploads = minioClient.list_incomplete_uploads('mybucket',
-                                         prefix='my-prefixname',
-                                         recursive=True)
-for obj in uploads:
-    print(obj.bucket_name, obj.object_name, obj.upload_id, obj.size)
-```
-
-<a name="remove_all_bucket_notification"></a>
-### remove_all_bucket_notification(bucket_name)
-
-删除存储桶上配置的所有通知。
-
-参数
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``bucket_name``   | _string_  |存储桶名称。|
-
-没有返回值，如果操作失败会抛出 `ResponseError` 异常。
-
-__示例__
-
-
 ## 3. 操作对象
 <a name="get_object"></a>
 ### get_object(bucket_name, object_name, request_headers=None)
@@ -317,39 +206,6 @@ try:
     data = minioClient.get_object('mybucket', 'myobject')
     with open('my-testfile', 'wb') as file_data:
         for d in data.stream(32*1024):
-            file_data.write(d)
-except ResponseError as err:
-    print(err)
-```
-
-<a name="get_partial_object"></a>
-### get_partial_object(bucket_name, object_name, offset=0, length=0, request_headers=None)
-下载一个对象的指定区间的字节数组。
-
-参数
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``bucket_name``   |_string_  |存储桶名称。   |
-|``object_name``   |_string_  |对象名称。  |
-|``offset``   |_int_ |``offset`` 是起始字节的位置   |
-|``length``   |_int_ |``length``是要读取的长度 (可选，如果无值则代表读到文件结尾)。  |
-|``request_headers`` |_dict_   |额外的请求头信息 （可选，默认为None）。  |
-
-__返回值__
-
-|参数   | 类型   |描述   |
-|:---|:---|:---|
-|``object``   | _urllib3.response.HTTPResponse_   |http streaming reader。  |
-
-__示例__
-
-```py
-# Offset the download by 2 bytes and retrieve a total of 4 bytes.
-try:
-    data = minioClient.get_partial_object('mybucket', 'myobject', 2, 4)
-    with open('my-testfile', 'wb') as file_data:
-        for d in data:
             file_data.write(d)
 except ResponseError as err:
     print(err)
@@ -669,43 +525,6 @@ try:
 except ResponseError as err:
     print(err)
 ```
-
-<a name="presigned_post_policy"></a>
-### presigned_post_policy(PostPolicy)
-允许给POST操作的presigned URL设置策略条件。这些策略包括比如，接收对象上传的存储桶名称，名称前缀，过期策略。
-
-创建policy：
-
-```py
-from datetime import datetime, timedelta
-
-from newtera import PostPolicy
-post_policy = PostPolicy()
-
-# Apply upload policy restrictions:
-
-# set bucket name location for uploads.
-post_policy.set_bucket_name('mybucket')
-# set key prefix for all incoming uploads.
-post_policy.set_key_startswith('myobject')
-# set content length for incoming uploads.
-post_policy.set_content_length_range(10, 1024)
-# set content-type to allow only text
-post_policy.set_content_type('text/plain')
-
-# set expiry 10 days into future.
-expires_date = datetime.utcnow()+timedelta(days=10)
-post_policy.set_expires(expires_date)
-```
-获得POST表单的键值对形式的对象：
-
-```py
-try:
-    signed_form_data = minioClient.presigned_post_policy(post_policy)
-except ResponseError as err:
-    print(err)
-```
-
 
 使用`curl`POST你的数据：
 

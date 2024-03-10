@@ -31,12 +31,9 @@ from queue import Queue
 from threading import BoundedSemaphore, Thread
 from typing import BinaryIO, Dict, List, Mapping, Tuple, Union
 
-from typing_extensions import Protocol
 from urllib3._collections import HTTPHeaderDict
 
 from . import __title__, __version__
-from .sse import Sse, SseCustomerKey
-from .time import to_iso8601utc
 
 _DEFAULT_USER_AGENT = (
     f"MinIO ({platform.system()}; {platform.machine()}) "
@@ -180,7 +177,7 @@ def get_part_info(object_size: int, part_size: int) -> tuple[int, int]:
     return part_size, part_count
 
 
-class ProgressType(Protocol):
+class ProgressType():
     """typing stub for Put/Get object progress."""
 
     def set_meta(self, object_name: str, total_length: int):
@@ -227,7 +224,6 @@ def makedirs(path: str):
 def check_bucket_name(
         bucket_name: str,
         strict: bool = False,
-        s3_check: bool = False,
 ):
     """Check whether bucket name is valid optional with strict check or not."""
 
@@ -246,16 +242,6 @@ def check_bucket_name(
     if any(x in bucket_name for x in unallowed_successive_chars):
         raise ValueError(f'bucket name {bucket_name} contains invalid '
                          'successive characters')
-
-    if (
-            s3_check and
-            bucket_name.startswith("xn--") or
-            bucket_name.endswith("-s3alias") or
-            bucket_name.endswith("--ol-s3")
-    ):
-        raise ValueError(f"bucket name {bucket_name} must not start with "
-                         "'xn--' and must not end with '--s3alias' or "
-                         "'--ol-s3'")
 
 
 def check_non_empty_string(string: str | bytes):
@@ -281,19 +267,6 @@ def is_valid_policy_type(policy: str | bytes):
     check_non_empty_string(policy)
 
     return True
-
-
-def check_ssec(sse: SseCustomerKey | None):
-    """Check sse is SseCustomerKey type or not."""
-    if sse and not isinstance(sse, SseCustomerKey):
-        raise ValueError("SseCustomerKey type is required")
-
-
-def check_sse(sse: Sse | None):
-    """Check sse is Sse type or not."""
-    if sse and not isinstance(sse, Sse):
-        raise ValueError("Sse type is required")
-
 
 def md5sum_hash(data: str | bytes | None) -> str | None:
     """Compute MD5 of data and return hash as Base64 encoded value."""
@@ -400,29 +373,9 @@ def normalize_headers(headers: DictType | None) -> DictType:
 
 def genheaders(
         headers: DictType | None,
-        sse: Sse | None,
-        tags: dict[str, str] | None,
-        retention,
-        legal_hold: bool,
 ) -> DictType:
     """Generate headers for given parameters."""
     headers = normalize_headers(headers)
-    headers.update(sse.headers() if sse else {})
-    tagging = "&".join(
-        [
-            queryencode(key) + "=" + queryencode(value)
-            for key, value in (tags or {}).items()
-        ],
-    )
-    if tagging:
-        headers["x-amz-tagging"] = tagging
-    if retention and retention.mode:
-        headers["x-amz-object-lock-mode"] = retention.mode
-        headers["x-amz-object-lock-retain-until-date"] = (
-            to_iso8601utc(retention.retain_until_date) or ""
-        )
-    if legal_hold:
-        headers["x-amz-object-lock-legal-hold"] = "ON"
     return headers
 
 
@@ -534,34 +487,13 @@ class BaseURL:
     _aws_info: dict | None
     _virtual_style_flag: bool
     _url: urllib.parse.SplitResult
-    _region: str | None
     _accelerate_host_flag: bool
 
-    def __init__(self, endpoint: str, region: str | None):
+    def __init__(self, endpoint: str):
         url = _parse_url(endpoint)
 
-        if region and not _REGION_REGEX.match(region):
-            raise ValueError(f"invalid region {region}")
-
-        hostname = url.hostname or ""
-        self._aws_info, region_in_host = _get_aws_info(
-            hostname, url.scheme == "https", region)
-        self._virtual_style_flag = (
-            self._aws_info is not None or hostname.endswith("aliyuncs.com")
-        )
         self._url = url
-        self._region = region or region_in_host
         self._accelerate_host_flag = False
-        if self._aws_info:
-            self._region = self._aws_info["region"]
-            self._accelerate_host_flag = (
-                self._aws_info["s3_prefix"].endswith("s3-accelerate.")
-            )
-
-    @property
-    def region(self) -> str | None:
-        """Get region."""
-        return self._region
 
     @property
     def is_https(self) -> bool:
@@ -572,24 +504,6 @@ class BaseURL:
     def host(self) -> str:
         """Get hostname."""
         return self._url.netloc
-
-    @property
-    def is_aws_host(self) -> bool:
-        """Check if URL points to AWS host."""
-        return self._aws_info is not None
-
-    @property
-    def aws_s3_prefix(self) -> str | None:
-        """Get AWS S3 domain prefix."""
-        return self._aws_info["s3_prefix"] if self._aws_info else None
-
-    @aws_s3_prefix.setter
-    def aws_s3_prefix(self, s3_prefix: str):
-        """Set AWS s3 domain prefix."""
-        if not _AWS_S3_PREFIX_REGEX.match(s3_prefix):
-            raise ValueError(f"invalid AWS S3 domain prefix {s3_prefix}")
-        if self._aws_info:
-            self._aws_info["s3_prefix"] = s3_prefix
 
     @property
     def accelerate_host_flag(self) -> bool:
@@ -662,31 +576,14 @@ class BaseURL:
     def _build_list_buckets_url(
             self,
             url: urllib.parse.SplitResult,
-            region: str | None,
     ) -> urllib.parse.SplitResult:
         """Build URL for ListBuckets API."""
         if not self._aws_info:
             return url
 
-        s3_prefix = self._aws_info["s3_prefix"]
-        domain_suffix = self._aws_info["domain_suffix"]
-
-        host = f"{s3_prefix}{domain_suffix}"
-        if host in ["s3-external-1.amazonaws.com",
-                    "s3-us-gov-west-1.amazonaws.com",
-                    "s3-fips-us-gov-west-1.amazonaws.com"]:
-            return url_replace(url, netloc=host)
-
-        if s3_prefix.startswith("s3.") or s3_prefix.startswith("s3-"):
-            s3_prefix = "s3."
-            cn_suffix = ".cn" if domain_suffix.endswith(".cn") else ""
-            domain_suffix = f"amazonaws.com{cn_suffix}"
-        return url_replace(url, netloc=f"{s3_prefix}{region}.{domain_suffix}")
-
     def build(
             self,
             method: str,
-            region: str,
             bucket_name: str | None = None,
             object_name: str | None = None,
             query_params: DictType | None = None,
@@ -709,7 +606,7 @@ class BaseURL:
         url = url_replace(url, query="&".join(query))
 
         if not bucket_name:
-            return self._build_list_buckets_url(url, region)
+            return self._build_list_buckets_url(url)
 
         enforce_path_style = (
             # CreateBucket API requires path style in Amazon AWS S3.
@@ -722,10 +619,6 @@ class BaseURL:
             # SSL certificate validation error.
             ("." in bucket_name and self._url.scheme == "https")
         )
-
-        if self._aws_info:
-            url = BaseURL._build_aws_url(
-                self._aws_info, url, bucket_name, enforce_path_style, region)
 
         netloc = url.netloc
         path = "/"

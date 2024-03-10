@@ -45,9 +45,9 @@ For example:
 ```py
 from Newtera import Newtera
 
-client = Newtera("play.min.io",
-    access_key="Q3AM3UQ867SPQQA43P2F",
-    secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+client = Newtera("localhost:8080",
+    access_key="demo1",
+    secret_key="888",
 )
 ```
 
@@ -69,9 +69,9 @@ from Newtera.error import NewteraError
 def main():
     # Create a client with the Newtera server playground, its access key
     # and secret key.
-    client = Newtera("play.min.io",
-        access_key="Q3AM3UQ867SPQQA43P2F",
-        secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+    client = Newtera("localhost:8080",
+        access_key="demo1",
+        secret_key="888",
     )
 
     # The file to upload, change this path if needed

@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
+    "\\examples",
     "\\newtera"
   ],
-  "SelectedNode": "\\newtera\\api.py",
+  "SelectedNode": "\\newtera\\helpers.py",
   "PreviewInSolutionExplorer": false
 }

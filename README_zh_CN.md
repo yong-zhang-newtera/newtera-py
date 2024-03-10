@@ -39,9 +39,9 @@ MinIO client需要以下4个参数来连接MinIO对象存储服务。
 from newtera import Newtera
 from newtera.error import ResponseError
 
-minioClient = Newtera('play.min.io',
-                  access_key='Q3AM3UQ867SPQQA43P2F',
-                  secret_key='zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
+minioClient = Newtera('localhost:8080',
+                  access_key='demo1',
+                  secret_key='888',
                   secure=True)
 ```
 
@@ -49,7 +49,7 @@ minioClient = Newtera('play.min.io',
 ## 示例-文件上传
 本示例连接到一个MinIO对象存储服务，创建一个存储桶并上传一个文件到存储桶中。
 
-我们在本示例中使用运行在 [https://play.min.io](https://play.min.io) 上的MinIO服务，你可以用这个服务来开发和测试。示例中的访问凭据是公开的。
+我们在本示例中使用运行在 [https://localhost:8080](https://localhost:8080) 上的MinIO服务，你可以用这个服务来开发和测试。示例中的访问凭据是公开的。
 
 #### file-uploader.py
 
@@ -60,9 +60,9 @@ from newtera.error import (ResponseError, BucketAlreadyOwnedByYou,
                          BucketAlreadyExists)
 
 # 使用endpoint、access key和secret key来初始化minioClient对象。
-minioClient = Newtera('play.min.io',
-                    access_key='Q3AM3UQ867SPQQA43P2F',
-                    secret_key='zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG',
+minioClient = Newtera('localhost:8080',
+                    access_key='demo1',
+                    secret_key='888',
                     secure=True)
 
 #### Run file-uploader
