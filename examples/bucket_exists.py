@@ -17,12 +17,12 @@
 from newtera import Newtera
 
 client = Newtera(
-    "play.min.io",
-    access_key="Q3AM3UQ867SPQQA43P2F",
-    secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+    "localhost:8080",
+    access_key="demo1",
+    secret_key="888",
 )
 
-if client.bucket_exists("my-bucket"):
-    print("my-bucket exists")
+if client.bucket_exists("tdm"):
+    print("tdm exists")
 else:
-    print("my-bucket does not exist")
+    print("tdm does not exist")

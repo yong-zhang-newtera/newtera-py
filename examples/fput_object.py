@@ -18,18 +18,16 @@ from datetime import datetime, timedelta
 
 from examples.progress import Progress
 from newtera import Newtera
-from newtera.commonconfig import GOVERNANCE, Tags
-from newtera.sse import SseCustomerKey, SseKMS, SseS3
 
 client = Newtera(
-    "play.min.io",
-    access_key="Q3AM3UQ867SPQQA43P2F",
-    secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+    "localhost:8080",
+    access_key="demo1",
+    secret_key="888",
 )
 
 # Upload data.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -39,7 +37,7 @@ print(
 
 # Upload data with content-type.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     content_type="application/csv",
 )
 print(
@@ -50,7 +48,7 @@ print(
 
 # Upload data with metadata.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     metadata={"My-Project": "one"},
 )
 print(
@@ -61,8 +59,7 @@ print(
 
 # Upload data with customer key type of server-side encryption.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-    sse=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
+    "tdm", "my-object", "my-filename",
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -72,8 +69,7 @@ print(
 
 # Upload data with KMS type of server-side encryption.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-    sse=SseKMS("KMS-KEY-ID", {"Key1": "Value1", "Key2": "Value2"}),
+    "tdm", "my-object", "my-filename",
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -83,8 +79,7 @@ print(
 
 # Upload data with S3 type of server-side encryption.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-    sse=SseS3(),
+    "tdm", "my-object", "my-filename",
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -96,10 +91,8 @@ print(
 date = datetime.utcnow().replace(
     hour=0, minute=0, second=0, microsecond=0,
 ) + timedelta(days=30)
-tags = Tags(for_object=True)
-tags["User"] = "jsmith"
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -109,7 +102,7 @@ print(
 
 # Upload data with progress bar.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     progress=Progress(),
 )
 print(

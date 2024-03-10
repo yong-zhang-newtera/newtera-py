@@ -29,3 +29,4 @@ var/
 #*
 tests/functional/.*
 tests/functional/minio*
+.vs

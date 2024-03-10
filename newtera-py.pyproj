@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{0ee8429b-f576-49e0-bc81-ae1d9b4110b8}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>examples\bucket_exists.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|VisualStudio|PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="examples\bucket_exists.py" />
+    <Compile Include="examples\fget_object.py" />
+    <Compile Include="examples\fput_object.py" />
+    <Compile Include="examples\get_object.py" />
+    <Compile Include="examples\list_objects.py" />
+    <Compile Include="examples\progress.py" />
+    <Compile Include="examples\put_object.py" />
+    <Compile Include="examples\remove_object.py" />
+    <Compile Include="examples\stat_object.py" />
+    <Compile Include="newtera\api.py" />
+    <Compile Include="newtera\credentials\credentials.py" />
+    <Compile Include="newtera\credentials\__init__.py" />
+    <Compile Include="newtera\datatypes.py" />
+    <Compile Include="newtera\deleteobjects.py" />
+    <Compile Include="newtera\error.py" />
+    <Compile Include="newtera\helpers.py" />
+    <Compile Include="newtera\time.py" />
+    <Compile Include="newtera\xml.py" />
+    <Compile Include="newtera\__init__.py" />
+    <Compile Include="setup.py" />
+    <Compile Include="tests\unit\__init__.py" />
+    <Compile Include="tests\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="examples" />
+    <Folder Include="newtera" />
+    <Folder Include="newtera\credentials" />
+    <Folder Include="tests" />
+    <Folder Include="tests\functional" />
+    <Folder Include="tests\unit" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|VisualStudio|PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

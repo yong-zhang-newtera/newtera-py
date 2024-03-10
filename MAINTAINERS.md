@@ -62,15 +62,6 @@ Upload the signed release artifacts, please install twine v1.8.0+ for following 
 $ twine upload dist/*
 ```
 
-### Tag
-Tag and sign your release commit, additionally this step requires you to have access to MinIO's trusted private key.
-```
-$ export GNUPGHOME=/media/${USER}/newtera/trusted
-$ git tag -s 2.2.5
-$ git push
-$ git push --tags
-```
-
 ### Announce
 Announce new release by adding release notes at https://github.com/newtera/newtera-py/releases from `trusted@min.io` account. Release notes requires two sections `highlights` and `changelog`. Highlights is a bulleted list of salient features in this release and Changelog contains list of all commits since the last release.
 

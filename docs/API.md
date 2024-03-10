@@ -28,7 +28,7 @@ __Example__
 from newtera import Newtera
 
 # Create client with anonymous access.
-client = Newtera("play.min.io")
+client = Newtera("localhost:8080")
 
 # Create client with access and secret key.
 client = Newtera("s3.amazonaws.com", "ACCESS-KEY", "SECRET-KEY")
@@ -36,8 +36,8 @@ client = Newtera("s3.amazonaws.com", "ACCESS-KEY", "SECRET-KEY")
 # Create client with access key and secret key with specific region.
 client = Newtera(
     "play.newtera.io:9000",
-    access_key="Q3AM3UQ867SPQQA43P2F",
-    secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+    access_key="demo1",
+    secret_key="888",
     region="my-region",
 )
 
@@ -98,10 +98,10 @@ __Parameters__
 __Example__
 
 ```py
-if client.bucket_exists("my-bucket"):
-    print("my-bucket exists")
+if client.bucket_exists("tdm"):
+    print("tdm exists")
 else:
-    print("my-bucket does not exist")
+    print("tdm does not exist")
 ```
 
 <a name="remove_bucket"></a>
@@ -119,7 +119,7 @@ __Parameters__
 __Example__
 
 ```py
-client.remove_bucket("my-bucket")
+client.remove_bucket("tdm")
 ```
 
 <a name="list_objects"></a>
@@ -151,24 +151,24 @@ __Example__
 
 ```py
 # List objects information.
-objects = client.list_objects("my-bucket")
+objects = client.list_objects("tdm")
 for obj in objects:
     print(obj)
 
 # List objects information whose names starts with "my/prefix/".
-objects = client.list_objects("my-bucket", prefix="my/prefix/")
+objects = client.list_objects("tdm", prefix="my/prefix/")
 for obj in objects:
     print(obj)
 
 # List objects information recursively.
-objects = client.list_objects("my-bucket", recursive=True)
+objects = client.list_objects("tdm", recursive=True)
 for obj in objects:
     print(obj)
 
 # List objects information recursively whose names starts with
 # "my/prefix/".
 objects = client.list_objects(
-    "my-bucket", prefix="my/prefix/", recursive=True,
+    "tdm", prefix="my/prefix/", recursive=True,
 )
 for obj in objects:
     print(obj)
@@ -176,7 +176,7 @@ for obj in objects:
 # List objects information recursively after object name
 # "my/prefix/world/1".
 objects = client.list_objects(
-    "my-bucket", recursive=True, start_after="my/prefix/world/1",
+    "tdm", recursive=True, start_after="my/prefix/world/1",
 )
 for obj in objects:
     print(obj)
@@ -214,7 +214,7 @@ __Example__
 ```py
 # Get data of an object.
 try:
-    response = client.get_object("my-bucket", "my-object")
+    response = client.get_object("tdm", "my-object")
     # Read data from response.
 finally:
     response.close()
@@ -223,7 +223,7 @@ finally:
 # Get data of an object of version-ID.
 try:
     response = client.get_object(
-        "my-bucket", "my-object",
+        "tdm", "my-object",
         version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
     )
     # Read data from response.
@@ -234,7 +234,7 @@ finally:
 # Get data of an object from offset and length.
 try:
     response = client.get_object(
-        "my-bucket", "my-object", offset=512, length=1024,
+        "tdm", "my-object", offset=512, length=1024,
     )
     # Read data from response.
 finally:
@@ -244,7 +244,7 @@ finally:
 # Get data of an SSE-C encrypted object.
 try:
     response = client.get_object(
-        "my-bucket", "my-object",
+        "tdm", "my-object",
         ssec=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
     )
     # Read data from response.
@@ -281,17 +281,17 @@ __Example__
 
 ```py
 # Download data of an object.
-client.fget_object("my-bucket", "my-object", "my-filename")
+client.fget_object("tdm", "my-object", "my-filename")
 
 # Download data of an object of version-ID.
 client.fget_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
 )
 
 # Download data of an SSE-C encrypted object.
 client.fget_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     ssec=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
 )
 ```
@@ -326,7 +326,7 @@ __Example__
 ```py
 # Upload data.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -339,7 +339,7 @@ data = urlopen(
     "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.4.81.tar.xz",
 )
 result = client.put_object(
-    "my-bucket", "my-object", data, length=-1, part_size=10*1024*1024,
+    "tdm", "my-object", data, length=-1, part_size=10*1024*1024,
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -349,7 +349,7 @@ print(
 
 # Upload data with content-type.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
     content_type="application/csv",
 )
 print(
@@ -360,7 +360,7 @@ print(
 
 # Upload data with metadata.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
     metadata={"My-Project": "one"},
 )
 print(
@@ -371,7 +371,7 @@ print(
 
 # Upload data with customer key type of server-side encryption.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
     sse=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
 )
 print(
@@ -382,7 +382,7 @@ print(
 
 # Upload data with KMS type of server-side encryption.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
     sse=SseKMS("KMS-KEY-ID", {"Key1": "Value1", "Key2": "Value2"}),
 )
 print(
@@ -393,7 +393,7 @@ print(
 
 # Upload data with S3 type of server-side encryption.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
     sse=SseS3(),
 )
 print(
@@ -406,10 +406,8 @@ print(
 date = datetime.utcnow().replace(
     hour=0, minute=0, second=0, microsecond=0,
 ) + timedelta(days=30)
-tags = Tags(for_object=True)
-tags["User"] = "jsmith"
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -419,7 +417,7 @@ print(
 
 # Upload data with progress bar.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
     progress=Progress(),
 )
 print(
@@ -457,7 +455,7 @@ __Example__
 ```py
 # Upload data.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -467,7 +465,7 @@ print(
 
 # Upload data with content-type.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     content_type="application/csv",
 )
 print(
@@ -478,7 +476,7 @@ print(
 
 # Upload data with metadata.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     metadata={"My-Project": "one"},
 )
 print(
@@ -489,7 +487,7 @@ print(
 
 # Upload data with customer key type of server-side encryption.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     sse=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
 )
 print(
@@ -500,7 +498,7 @@ print(
 
 # Upload data with KMS type of server-side encryption.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     sse=SseKMS("KMS-KEY-ID", {"Key1": "Value1", "Key2": "Value2"}),
 )
 print(
@@ -511,7 +509,7 @@ print(
 
 # Upload data with S3 type of server-side encryption.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     sse=SseS3(),
 )
 print(
@@ -524,10 +522,8 @@ print(
 date = datetime.utcnow().replace(
     hour=0, minute=0, second=0, microsecond=0,
 ) + timedelta(days=30)
-tags = Tags(for_object=True)
-tags["User"] = "jsmith"
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -537,7 +533,7 @@ print(
 
 # Upload data with progress bar.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
+    "tdm", "my-object", "my-filename",
     progress=Progress(),
 )
 print(
@@ -574,7 +570,7 @@ __Example__
 
 ```py
 # Get object information.
-result = client.stat_object("my-bucket", "my-object")
+result = client.stat_object("tdm", "my-object")
 print(
     "last-modified: {0}, size: {1}".format(
         result.last_modified, result.size,
@@ -583,7 +579,7 @@ print(
 
 # Get object information of version-ID.
 result = client.stat_object(
-    "my-bucket", "my-object",
+    "tdm", "my-object",
     version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
 )
 print(
@@ -594,7 +590,7 @@ print(
 
 # Get SSE-C encrypted object information.
 result = client.stat_object(
-    "my-bucket", "my-object",
+    "tdm", "my-object",
     ssec=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
 )
 print(
@@ -622,11 +618,11 @@ __Example__
 
 ```py
 # Remove object.
-client.remove_object("my-bucket", "my-object")
+client.remove_object("tdm", "my-object")
 
 # Remove version of an object.
 client.remove_object(
-    "my-bucket", "my-object",
+    "tdm", "my-object",
     version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
 )
 ```
@@ -656,7 +652,7 @@ __Example__
 ```py
 # Remove list of objects.
 errors = client.remove_objects(
-    "my-bucket",
+    "tdm",
     [
         DeleteObject("my-object1"),
         DeleteObject("my-object2"),
@@ -669,9 +665,9 @@ for error in errors:
 # Remove a prefix recursively.
 delete_object_list = map(
     lambda x: DeleteObject(x.object_name),
-    client.list_objects("my-bucket", "my/prefix/", recursive=True),
+    client.list_objects("tdm", "my/prefix/", recursive=True),
 )
-errors = client.remove_objects("my-bucket", delete_object_list)
+errors = client.remove_objects("tdm", delete_object_list)
 for error in errors:
     print("error occurred when deleting object", error)
 ```

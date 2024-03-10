@@ -34,11 +34,11 @@ with codecs.open("README.md", encoding="utf-8") as file:
 
 setup(
     name="newtera",
-    description="MinIO Python SDK for Amazon S3 Compatible Cloud Storage",
-    author="MinIO, Inc.",
+    description="Newtera Python SDK for Newtera TDM",
+    author="Newtera",
     url="https://github.com/newtera/newtera-py",
     download_url="https://github.com/newtera/newtera-py/releases",
-    author_email="dev@min.io",
+    author_email="dev@newtera.com",
     version=version,
     long_description_content_type="text/markdown",
     package_dir={"newtera": "newtera"},

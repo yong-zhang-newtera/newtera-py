@@ -18,11 +18,9 @@
 
 from __future__ import absolute_import, annotations
 
-import io
 from typing import Type, TypeVar
 from xml.etree import ElementTree as ET
 
-from typing_extensions import Protocol
 
 _S3_NAMESPACE = "http://s3.amazonaws.com/doc/2006-03-01/"
 
@@ -98,7 +96,7 @@ def findtext(
 A = TypeVar("A")
 
 
-class FromXmlType(Protocol):
+class FromXmlType():
     """typing stub for class with `fromxml` method"""
 
     @classmethod
@@ -108,30 +106,3 @@ class FromXmlType(Protocol):
 
 B = TypeVar("B", bound=FromXmlType)
 
-
-def unmarshal(cls: Type[B], xmlstring: str) -> B:
-    """Unmarshal given XML string to an object of passed class."""
-    return cls.fromxml(ET.fromstring(xmlstring))
-
-
-def getbytes(element: ET.Element) -> bytes:
-    """Convert ElementTree.Element to bytes."""
-    with io.BytesIO() as data:
-        ET.ElementTree(element).write(
-            data,
-            encoding=None,
-            xml_declaration=False,
-        )
-        return data.getvalue()
-
-
-class ToXmlType(Protocol):
-    """typing stub for class with `toxml` method"""
-
-    def toxml(self, element: ET.Element | None) -> ET.Element:
-        """Convert python object to ElementTree.Element."""
-
-
-def marshal(obj: ToXmlType) -> bytes:
-    """Get XML data as bytes of ElementTree.Element."""
-    return getbytes(obj.toxml(None))
