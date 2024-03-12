@@ -18,3 +18,4 @@
 
 # pylint: disable=unused-import
 from .credentials import Credentials
+from .providers import (Provider, StaticProvider)

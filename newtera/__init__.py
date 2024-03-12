@@ -32,9 +32,9 @@ newtera - Newtera Python SDK for Amazon S3 Compatible Cloud Storage
 
 __title__ = "newtera-py"
 __author__ = "Newtera, Inc."
-__version__ = "8.0.0"
+__version__ = "1.0.0"
 __license__ = "Apache 2.0"
-__copyright__ = "Copyright 2015, 2016, 2017, 2018, 2019, 2020 Newtera, Inc."
+__copyright__ = "Copyright 2024 Newtera, Inc."
 
 # pylint: disable=unused-import,useless-import-alias
 from .api import Newtera as Newtera
