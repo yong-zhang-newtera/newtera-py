@@ -30,6 +30,7 @@
     <Compile Include="examples\stat_object.py" />
     <Compile Include="newtera\api.py" />
     <Compile Include="newtera\credentials\credentials.py" />
+    <Compile Include="newtera\credentials\providers.py" />
     <Compile Include="newtera\credentials\__init__.py" />
     <Compile Include="newtera\datatypes.py" />
     <Compile Include="newtera\deleteobjects.py" />
@@ -39,8 +40,6 @@
     <Compile Include="newtera\xml.py" />
     <Compile Include="newtera\__init__.py" />
     <Compile Include="setup.py" />
-    <Compile Include="tests\unit\__init__.py" />
-    <Compile Include="tests\__init__.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="examples" />

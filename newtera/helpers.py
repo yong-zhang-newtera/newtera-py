@@ -18,38 +18,22 @@
 
 from __future__ import absolute_import, annotations, division, unicode_literals
 
-import base64
 import errno
-import hashlib
 import math
 import os
-import platform
 import re
 import urllib.parse
 from datetime import datetime
-from queue import Queue
-from threading import BoundedSemaphore, Thread
 from typing import BinaryIO, Dict, List, Mapping, Tuple, Union
 
 from urllib3._collections import HTTPHeaderDict
 
 from . import __title__, __version__
 
-_DEFAULT_USER_AGENT = (
-    f"MinIO ({platform.system()}; {platform.machine()}) "
-    f"{__title__}/{__version__}"
-)
-
 MAX_MULTIPART_COUNT = 10000  # 10000 parts
 MAX_MULTIPART_OBJECT_SIZE = 5 * 1024 * 1024 * 1024 * 1024  # 5TiB
 MAX_PART_SIZE = 5 * 1024 * 1024 * 1024  # 5GiB
 MIN_PART_SIZE = 5 * 1024 * 1024  # 5MiB
-
-_AWS_S3_PREFIX = (r'^(((bucket\.|accesspoint\.)'
-                  r'vpce(-(?!_)[a-z_\d]+(?<!-)(?<!_))+\.s3\.)|'
-                  r'((?!s3)(?!-)(?!_)[a-z_\d-]{1,63}(?<!-)(?<!_)\.)'
-                  r's3-control(-(?!_)[a-z_\d]+(?<!-)(?<!_))*\.|'
-                  r'(s3(-(?!_)[a-z_\d]+(?<!-)(?<!_))*\.))')
 
 _BUCKET_NAME_REGEX = re.compile(r'^[a-z0-9][a-z0-9\.\-]{1,61}[a-z0-9]$')
 _OLD_BUCKET_NAME_REGEX = re.compile(r'^[a-z0-9][a-z0-9_\.\-\:]{1,61}[a-z0-9]$',
@@ -57,24 +41,6 @@ _OLD_BUCKET_NAME_REGEX = re.compile(r'^[a-z0-9][a-z0-9_\.\-\:]{1,61}[a-z0-9]$',
 _IPV4_REGEX = re.compile(
     r'^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}'
     r'(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$')
-_HOSTNAME_REGEX = re.compile(
-    r'^((?!-)(?!_)[a-z_\d-]{1,63}(?<!-)(?<!_)\.)*'
-    r'((?!_)(?!-)[a-z_\d-]{1,63}(?<!-)(?<!_))$',
-    re.IGNORECASE)
-_AWS_ENDPOINT_REGEX = re.compile(r'.*\.amazonaws\.com(|\.cn)$', re.IGNORECASE)
-_AWS_S3_ENDPOINT_REGEX = re.compile(
-    _AWS_S3_PREFIX +
-    r'((?!s3)(?!-)(?!_)[a-z_\d-]{1,63}(?<!-)(?<!_)\.)*'
-    r'amazonaws\.com(|\.cn)$',
-    re.IGNORECASE)
-_AWS_ELB_ENDPOINT_REGEX = re.compile(
-    r'^(?!-)(?!_)[a-z_\d-]{1,63}(?<!-)(?<!_)\.'
-    r'(?!-)(?!_)[a-z_\d-]{1,63}(?<!-)(?<!_)\.'
-    r'elb\.amazonaws\.com$',
-    re.IGNORECASE)
-_AWS_S3_PREFIX_REGEX = re.compile(_AWS_S3_PREFIX, re.IGNORECASE)
-_REGION_REGEX = re.compile(r'^((?!_)(?!-)[a-z_\d-]{1,63}(?<!-)(?<!_))$',
-                           re.IGNORECASE)
 
 DictType = Dict[str, Union[str, List[str], Tuple[str]]]
 
@@ -268,32 +234,6 @@ def is_valid_policy_type(policy: str | bytes):
 
     return True
 
-def md5sum_hash(data: str | bytes | None) -> str | None:
-    """Compute MD5 of data and return hash as Base64 encoded value."""
-    if data is None:
-        return None
-
-    # indicate md5 hashing algorithm is not used in a security context.
-    # Refer https://bugs.python.org/issue9216 for more information.
-    hasher = hashlib.new(  # type: ignore[call-arg]
-        "md5",
-        usedforsecurity=False,
-    )
-    hasher.update(data.encode() if isinstance(data, str) else data)
-    md5sum = base64.b64encode(hasher.digest())
-    return md5sum.decode() if isinstance(md5sum, bytes) else md5sum
-
-
-def sha256_hash(data: str | bytes | None) -> str:
-    """Compute SHA-256 of data and return hash as hex encoded value."""
-    data = data or b""
-    hasher = hashlib.sha256()
-    hasher.update(data.encode() if isinstance(data, str) else data)
-    sha256sum = hasher.hexdigest()
-    if isinstance(sha256sum, bytes):
-        return sha256sum.decode()
-    return sha256sum
-
 
 def url_replace(
         url: urllib.parse.SplitResult,
@@ -377,67 +317,6 @@ def genheaders(
     """Generate headers for given parameters."""
     headers = normalize_headers(headers)
     return headers
-
-
-def _get_aws_info(
-        host: str,
-        https: bool,
-        region: str | None,
-) -> tuple[dict | None, str | None]:
-    """Extract AWS domain information. """
-
-    if not _HOSTNAME_REGEX.match(host):
-        return (None, None)
-
-    if _AWS_ELB_ENDPOINT_REGEX.match(host):
-        region_in_host = host.split(".elb.amazonaws.com", 1)[0].split(".")[-1]
-        return (None, region or region_in_host)
-
-    if not _AWS_ENDPOINT_REGEX.match(host):
-        return (None, None)
-
-    if host.startswith("ec2-"):
-        return (None, None)
-
-    if not _AWS_S3_ENDPOINT_REGEX.match(host):
-        raise ValueError(f"invalid Amazon AWS host {host}")
-
-    matcher = _AWS_S3_PREFIX_REGEX.match(host)
-    end = matcher.end() if matcher else 0
-    aws_s3_prefix = host[:end]
-
-    if "s3-accesspoint" in aws_s3_prefix and not https:
-        raise ValueError(f"use HTTPS scheme for host {host}")
-
-    tokens = host[end:].split(".")
-    dualstack = tokens[0] == "dualstack"
-    if dualstack:
-        tokens = tokens[1:]
-    region_in_host = ""
-    if tokens[0] not in ["vpce", "amazonaws"]:
-        region_in_host = tokens[0]
-        tokens = tokens[1:]
-    aws_domain_suffix = ".".join(tokens)
-
-    if host in "s3-external-1.amazonaws.com":
-        region_in_host = "us-east-1"
-
-    if host in ["s3-us-gov-west-1.amazonaws.com",
-                "s3-fips-us-gov-west-1.amazonaws.com"]:
-        region_in_host = "us-gov-west-1"
-
-    if (aws_domain_suffix.endswith(".cn") and
-        not aws_s3_prefix.endswith("s3-accelerate.") and
-        not region_in_host and
-            not region):
-        raise ValueError(
-            f"region missing in Amazon S3 China endpoint {host}",
-        )
-
-    return ({"s3_prefix": aws_s3_prefix,
-             "domain_suffix": aws_domain_suffix,
-             "region": region or region_in_host,
-             "dualstack": dualstack}, None)
 
 
 def _parse_url(endpoint: str) -> urllib.parse.SplitResult:
@@ -536,43 +415,6 @@ class BaseURL:
         """Check to use virtual style or not."""
         self._virtual_style_flag = flag
 
-    @classmethod
-    def _build_aws_url(
-            cls,
-            aws_info: dict,
-            url: urllib.parse.SplitResult,
-            bucket_name: str | None,
-            enforce_path_style: bool,
-            region: str,
-    ) -> urllib.parse.SplitResult:
-        """Build URL for given information."""
-        s3_prefix = aws_info["s3_prefix"]
-        domain_suffix = aws_info["domain_suffix"]
-
-        host = f"{s3_prefix}{domain_suffix}"
-        if host in ["s3-external-1.amazonaws.com",
-                    "s3-us-gov-west-1.amazonaws.com",
-                    "s3-fips-us-gov-west-1.amazonaws.com"]:
-            return url_replace(url, netloc=host)
-
-        netloc = s3_prefix
-        if "s3-accelerate" in s3_prefix:
-            if "." in (bucket_name or ""):
-                raise ValueError(
-                    f"bucket name '{bucket_name}' with '.' is not allowed "
-                    f"for accelerate endpoint"
-                )
-            if enforce_path_style:
-                netloc = netloc.replace("-accelerate", "", 1)
-
-        if aws_info["dualstack"]:
-            netloc += "dualstack."
-        if "s3-accelerate" not in s3_prefix:
-            netloc += region + "."
-        netloc += domain_suffix
-
-        return url_replace(url, netloc=netloc)
-
     def _build_list_buckets_url(
             self,
             url: urllib.parse.SplitResult,
@@ -584,6 +426,7 @@ class BaseURL:
     def build(
             self,
             method: str,
+            request_path: str,
             bucket_name: str | None = None,
             object_name: str | None = None,
             query_params: DictType | None = None,
@@ -594,7 +437,8 @@ class BaseURL:
                 f"empty bucket name for object name {object_name}",
             )
 
-        url = url_replace(self._url, path="/")
+        path = f"{request_path}{bucket_name}"
+        url = url_replace(self._url, path=path)
 
         query = []
         for key, values in sorted((query_params or {}).items()):
@@ -605,28 +449,8 @@ class BaseURL:
             ]
         url = url_replace(url, query="&".join(query))
 
-        if not bucket_name:
-            return self._build_list_buckets_url(url)
-
-        enforce_path_style = (
-            # CreateBucket API requires path style in Amazon AWS S3.
-            (method == "PUT" and not object_name and not query_params) or
-
-            # GetBucketLocation API requires path style in Amazon AWS S3.
-            (query_params and "location" in query_params) or
-
-            # Use path style for bucket name containing '.' which causes
-            # SSL certificate validation error.
-            ("." in bucket_name and self._url.scheme == "https")
-        )
-
         netloc = url.netloc
-        path = "/"
 
-        if enforce_path_style or not self._virtual_style_flag:
-            path = f"/{bucket_name}"
-        else:
-            netloc = f"{bucket_name}.{netloc}"
         if object_name:
             path += ("" if path.endswith("/") else "/") + quote(object_name)
 
@@ -688,88 +512,3 @@ class ObjectWriteResult:
     def location(self) -> str | None:
         """Get location."""
         return self._location
-
-
-class Worker(Thread):
-    """ Thread executing tasks from a given tasks queue """
-
-    def __init__(
-            self,
-            tasks_queue: Queue,
-            results_queue: Queue,
-            exceptions_queue: Queue,
-    ):
-        Thread.__init__(self, daemon=True)
-        self._tasks_queue = tasks_queue
-        self._results_queue = results_queue
-        self._exceptions_queue = exceptions_queue
-        self.start()
-
-    def run(self):
-        """ Continuously receive tasks and execute them """
-        while True:
-            task = self._tasks_queue.get()
-            if not task:
-                self._tasks_queue.task_done()
-                break
-            # No exception detected in any thread,
-            # continue the execution.
-            if self._exceptions_queue.empty():
-                # Execute the task
-                func, args, kargs, cleanup_func = task
-                try:
-                    result = func(*args, **kargs)
-                    self._results_queue.put(result)
-                except Exception as ex:  # pylint: disable=broad-except
-                    self._exceptions_queue.put(ex)
-                finally:
-                    cleanup_func()
-            # Mark this task as done, whether an exception happened or not
-            self._tasks_queue.task_done()
-
-
-class ThreadPool:
-    """ Pool of threads consuming tasks from a queue """
-    _results_queue: Queue
-    _exceptions_queue: Queue
-    _tasks_queue: Queue
-    _sem: BoundedSemaphore
-    _num_threads: int
-
-    def __init__(self, num_threads: int):
-        self._results_queue = Queue()
-        self._exceptions_queue = Queue()
-        self._tasks_queue = Queue()
-        self._sem = BoundedSemaphore(num_threads)
-        self._num_threads = num_threads
-
-    def add_task(self, func, *args, **kargs):
-        """
-        Add a task to the queue. Calling this function can block
-        until workers have a room for processing new tasks. Blocking
-        the caller also prevents the latter from allocating a lot of
-        memory while workers are still busy running their assigned tasks.
-        """
-        self._sem.acquire()  # pylint: disable=consider-using-with
-        cleanup_func = self._sem.release
-        self._tasks_queue.put((func, args, kargs, cleanup_func))
-
-    def start_parallel(self):
-        """ Prepare threads to run tasks"""
-        for _ in range(self._num_threads):
-            Worker(
-                self._tasks_queue, self._results_queue, self._exceptions_queue,
-            )
-
-    def result(self) -> Queue:
-        """ Stop threads and return the result of all called tasks """
-        # Send None to all threads to cleanly stop them
-        for _ in range(self._num_threads):
-            self._tasks_queue.put(None)
-        # Wait for completion of all the tasks in the queue
-        self._tasks_queue.join()
-        # Check if one of the thread raised an exception, if yes
-        # raise it here in the function
-        if not self._exceptions_queue.empty():
-            raise self._exceptions_queue.get()
-        return self._results_queue

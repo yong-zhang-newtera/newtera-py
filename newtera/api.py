@@ -40,11 +40,12 @@ except ImportError:
 from urllib3.util import Timeout
 
 from . import __title__, __version__, time
+from .credentials import StaticProvider
+from .credentials.providers import Provider
 from .datatypes import (Object,
                         parse_list_objects)
 from .error import InvalidResponseError, NewteraError, ServerError
-from .helpers import (_DEFAULT_USER_AGENT,
-                      BaseURL, DictType, ObjectWriteResult, ProgressType,
+from .helpers import (BaseURL, DictType, ObjectWriteResult, ProgressType,
                       check_bucket_name, check_non_empty_string,
                       genheaders, get_part_info,
                       headers_to_strings, makedirs,
@@ -77,8 +78,8 @@ class Newtera:
 
     """
     _base_url: BaseURL
-    _user_agent: str
     _trace_stream: TextIO | None
+    _provider: Provider | None
     _http: urllib3.PoolManager
 
     def __init__(
@@ -98,8 +99,12 @@ class Newtera:
         self._base_url = BaseURL(
             ("https://" if secure else "http://") + endpoint,
         )
-        self._user_agent = _DEFAULT_USER_AGENT
         self._trace_stream = None
+        if access_key:
+            if secret_key is None:
+                raise ValueError("secret key must be provided with access key")
+            credentials = StaticProvider(access_key, secret_key)
+        self._provider = credentials
 
         # Load CA certificates from SSL_CERT_FILE file if set
         timeout = timedelta(minutes=5).seconds
@@ -127,7 +132,6 @@ class Newtera:
         """Build headers with given parameters."""
         headers = headers or {}
         headers["Host"] = host
-        headers["User-Agent"] = self._user_agent
 
         if body:
             headers["Content-Length"] = str(len(body))
@@ -136,6 +140,7 @@ class Newtera:
     def _url_open(
             self,
             method: str,
+            request_path: str,
             bucket_name: str | None = None,
             object_name: str | None = None,
             body: bytes | None = None,
@@ -147,6 +152,7 @@ class Newtera:
         """Execute HTTP request."""
         url = self._base_url.build(
             method,
+            request_path,
             bucket_name=bucket_name,
             object_name=object_name,
             query_params=query_params,
@@ -176,6 +182,9 @@ class Newtera:
                     http_headers.add(key, val)
             else:
                 http_headers.add(key, value)
+
+        http_headers.add("AccessKey", self._provider.retrieve().access_key)
+        http_headers.add("SecretKey", self._provider.retrieve().secret_key)
 
         response = self._http.urlopen(
             method,
@@ -290,6 +299,7 @@ class Newtera:
     def _execute(
             self,
             method: str,
+            request_path: str,
             bucket_name: str | None = None,
             object_name: str | None = None,
             body: bytes | None = None,
@@ -303,6 +313,7 @@ class Newtera:
         try:
             return self._url_open(
                 method,
+                request_path=request_path,
                 bucket_name=bucket_name,
                 object_name=object_name,
                 body=body,
@@ -319,6 +330,7 @@ class Newtera:
         try:
             return self._url_open(
                 method,
+                request_path=request_path,
                 bucket_name=bucket_name,
                 object_name=object_name,
                 body=body,
@@ -363,7 +375,7 @@ class Newtera:
         """
         check_bucket_name(bucket_name)
         try:
-            self._execute("HEAD", bucket_name)
+            self._execute("HEAD", "/api/blob/buckets/", bucket_name)
             return True
         except NewteraError as exc:
             if exc.code != "NoSuchBucket":
@@ -603,6 +615,7 @@ class Newtera:
 
         return self._execute(
             "GET",
+            "/api/blob/objects/",
             bucket_name,
             object_name,
             headers=cast(DictType, headers),
@@ -621,6 +634,7 @@ class Newtera:
         """Execute PutObject Newtera TDM API."""
         response = self._execute(
             "PUT",
+            "/api/blob/objects/",
             bucket_name,
             object_name,
             body=data,
@@ -858,6 +872,7 @@ class Newtera:
         query_params = extra_query_params or {}
         response = self._execute(
             "HEAD",
+            "/api/blob/objects/",
             bucket_name,
             object_name,
             headers=headers,
@@ -908,6 +923,7 @@ class Newtera:
         check_non_empty_string(object_name)
         self._execute(
             "DELETE",
+            "/api/blob/objects/",
             bucket_name,
             object_name,
             query_params={"versionId": version_id} if version_id else None,
@@ -974,6 +990,7 @@ class Newtera:
 
             response = self._execute(
                 "GET",
+                "/api/blob/objects/",
                 bucket_name,
                 query_params=cast(DictType, query),
             )
