@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# MinIO Python Library for Amazon S3 Compatible Cloud Storage,
-# (C) 2015-2019 MinIO, Inc.
+# Newtera Python Library for Newtera TDM,
+# (C) 2015-2019 Newtera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@
 newtera.error
 ~~~~~~~~~~~~~~~~~~~
 
-This module provides custom exception classes for MinIO library
+This module provides custom exception classes for Newtera library
 and API specific errors.
 
-:copyright: (c) 2015, 2016, 2017 by MinIO, Inc.
+:copyright: (c) 2015, 2016, 2017 by Newtera, Inc.
 :license: Apache 2.0, see LICENSE for more details.
 
 """

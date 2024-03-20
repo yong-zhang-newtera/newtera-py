@@ -42,7 +42,7 @@ from urllib3.util import Timeout
 from . import __title__, __version__, time
 from .credentials import StaticProvider
 from .credentials.providers import Provider
-from .datatypes import (Object,
+from .datatypes import (Object, ObjectModel,
                         parse_list_objects)
 from .error import InvalidResponseError, NewteraError, ServerError
 from .helpers import (BaseURL, DictType, ObjectWriteResult, ProgressType,
@@ -444,11 +444,10 @@ class Newtera:
     def fget_object(
             self,
             bucket_name: str,
+            object_prefix: str,
             object_name: str,
             file_path: str,
             request_headers: DictType | None = None,
-            version_id: str | None = None,
-            extra_query_params: DictType | None = None,
             tmp_file_path: str | None = None,
             progress: ProgressType | None = None,
     ):
@@ -456,32 +455,18 @@ class Newtera:
         Downloads data of an object to file.
 
         :param bucket_name: Name of the bucket.
+        :param prefix: Prefix of the object.
         :param object_name: Object name in the bucket.
         :param file_path: Name of file to download.
         :param request_headers: Any additional headers to be added with GET
                                 request.
-        :param ssec: Server-side encryption customer key.
-        :param version_id: Version-ID of the object.
-        :param extra_query_params: Extra query parameters for advanced usage.
         :param tmp_file_path: Path to a temporary file.
         :param progress: A progress object
         :return: Object information.
 
         Example::
             # Download data of an object.
-            client.fget_object("tdm", "my-object", "my-filename")
-
-            # Download data of an object of version-ID.
-            client.fget_object(
-                "tdm", "my-object", "my-filename",
-                version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
-            )
-
-            # Download data of an SSE-C encrypted object.
-            client.fget_object(
-                "tdm", "my-object", "my-filename",
-                ssec=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
-            )
+            client.fget_object("tdm", "my-prefix", "my-object", "my-filename")
         """
         check_bucket_name(bucket_name)
         check_non_empty_string(object_name)
@@ -494,6 +479,7 @@ class Newtera:
 
         stat = self.stat_object(
             bucket_name,
+            object_prefix,
             object_name,
         )
 
@@ -509,8 +495,6 @@ class Newtera:
                 bucket_name,
                 object_name,
                 request_headers=request_headers,
-                version_id=version_id,
-                extra_query_params=extra_query_params,
             )
 
             if progress:
@@ -761,83 +745,35 @@ class Newtera:
             self,
             bucket_name: str,
             prefix: str | None = None,
-            recursive: bool = False,
-            start_after: str | None = None,
-            include_user_meta: bool = False,
-            include_version: bool = False,
-            use_api_v1: bool = False,
-            use_url_encoding_type: bool = True,
-            fetch_owner: bool = False,
     ):
         """
         Lists object information of a bucket.
 
         :param bucket_name: Name of the bucket.
         :param prefix: Object name starts with prefix.
-        :param recursive: List recursively than directory structure emulation.
-        :param start_after: List objects after this key name.
-        :param include_user_meta: MinIO specific flag to control to include
-                                 user metadata.
-        :param include_version: Flag to control whether include object
-                                versions.
-        :param use_api_v1: Flag to control to use ListObjectV1 Newtera TDM API or not.
-        :param use_url_encoding_type: Flag to control whether URL encoding type
-                                      to be used or not.
         :return: Iterator of :class:`Object <Object>`.
 
         Example::
-            # List objects information.
-            objects = client.list_objects("tdm")
-            for obj in objects:
-                print(obj)
-
             # List objects information whose names starts with "my/prefix/".
             objects = client.list_objects("tdm", prefix="my/prefix/")
-            for obj in objects:
-                print(obj)
-
-            # List objects information recursively.
-            objects = client.list_objects("tdm", recursive=True)
-            for obj in objects:
-                print(obj)
-
-            # List objects information recursively whose names starts with
-            # "my/prefix/".
-            objects = client.list_objects(
-                "tdm", prefix="my/prefix/", recursive=True,
-            )
-            for obj in objects:
-                print(obj)
-
-            # List objects information recursively after object name
-            # "my/prefix/world/1".
-            objects = client.list_objects(
-                "tdm", recursive=True, start_after="my/prefix/world/1",
-            )
             for obj in objects:
                 print(obj)
         """
         return self._list_objects(
             bucket_name,
-            delimiter=None if recursive else "/",
-            include_user_meta=include_user_meta,
             prefix=prefix,
-            start_after=start_after,
-            use_api_v1=use_api_v1,
-            include_version=include_version,
-            encoding_type="url" if use_url_encoding_type else None,
-            fetch_owner=fetch_owner,
         )
 
     def stat_object(
             self,
             bucket_name: str,
+            object_prefix: str,
             object_name: str,
             extra_headers: DictType | None = None,
             extra_query_params: DictType | None = None,
     ) -> Object:
         """
-        Get object information and metadata of an object.
+        Get object information of an object.
 
         :param bucket_name: Name of the bucket.
         :param object_name: Object name in the bucket.
@@ -885,7 +821,7 @@ class Newtera:
         else:
             last_modified = None
 
-        return Object(
+        return ObjectModel(
             bucket_name,
             object_name,
             last_modified=last_modified,
@@ -911,11 +847,11 @@ class Newtera:
 
         Example::
             # Remove object.
-            client.remove_object("my-bucket", "my-object")
+            client.remove_object("tdm", "my-object")
 
             # Remove version of an object.
             client.remove_object(
-                "my-bucket", "my-object",
+                "tdm", "my-object",
                 version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
             )
         """
@@ -932,77 +868,21 @@ class Newtera:
     def _list_objects(
             self,
             bucket_name: str,
-            continuation_token: str | None = None,  # listV2 only
-            delimiter: str | None = None,  # all
-            encoding_type: str | None = None,  # all
-            fetch_owner: bool | None = None,  # listV2 only
-            include_user_meta: bool = False,  # MinIO specific listV2.
-            max_keys: int | None = None,  # all
-            prefix: str | None = None,  # all
-            start_after: str | None = None,
-        # all: v1:marker, versioned:key_marker
-            version_id_marker: str | None = None,  # versioned
-            use_api_v1: bool = False,
-            include_version: bool = False,
-    ) -> Iterator[Object]:
-        """
-        List objects optionally including versions.
-        Note: Its required to send empty values to delimiter/prefix and 1000 to
-        max-keys when not provided for server-side bucket policy evaluation to
-        succeed; otherwise AccessDenied error will be returned for such
-        policies.
-        """
+            prefix: str | None = None,
+    ) -> list[Object]:
 
         check_bucket_name(bucket_name)
 
-        if version_id_marker:
-            include_version = True
+        query = {}
+        query["prefix"] = prefix or ""
 
-        is_truncated = True
-        while is_truncated:
-            query = {}
-            if include_version:
-                query["versions"] = ""
-            elif not use_api_v1:
-                query["list-type"] = "2"
+        response = self._execute(
+            "GET",
+            "/api/blob/objects/",
+            bucket_name,
+            query_params=cast(DictType, query),
+        )
 
-            if not include_version and not use_api_v1:
-                if continuation_token:
-                    query["continuation-token"] = continuation_token
-                if fetch_owner:
-                    query["fetch-owner"] = "true"
-                if include_user_meta:
-                    query["metadata"] = "true"
-            query["delimiter"] = delimiter or ""
-            if encoding_type:
-                query["encoding-type"] = encoding_type
-            query["max-keys"] = str(max_keys or 1000)
-            query["prefix"] = prefix or ""
-            if start_after:
-                if include_version:
-                    query["key-marker"] = start_after
-                elif use_api_v1:
-                    query["marker"] = start_after
-                else:
-                    query["start-after"] = start_after
-            if version_id_marker:
-                query["version-id-marker"] = version_id_marker
+        objects = parse_list_objects(response)
 
-            response = self._execute(
-                "GET",
-                "/api/blob/objects/",
-                bucket_name,
-                query_params=cast(DictType, query),
-            )
-
-            objects, is_truncated, start_after, version_id_marker = (
-                parse_list_objects(response)
-            )
-
-            if not include_version:
-                version_id_marker = None
-                if not use_api_v1:
-                    continuation_token = start_after
-
-            for obj in objects:
-                yield obj
+        return objects

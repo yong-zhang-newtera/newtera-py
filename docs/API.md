@@ -136,7 +136,7 @@ __Parameters__
 | `prefix`                | _str_  | Object name starts with prefix.                              |
 | `recursive`             | _bool_ | List recursively than directory structure emulation.         |
 | `start_after`           | _str_  | List objects after this key name.                            |
-| `include_user_meta`     | _bool_ | MinIO specific flag to control to include user metadata.     |
+| `include_user_meta`     | _bool_ | Newtera specific flag to control to include user metadata.     |
 | `include_version`       | _bool_ | Flag to control whether include object versions.             |
 | `use_api_v1`            | _bool_ | Flag to control to use ListObjectV1 S3 API or not.           |
 | `use_url_encoding_type` | _bool_ | Flag to control whether URL encoding type to be used or not. |
@@ -675,6 +675,6 @@ for error in errors:
 
 ## 5. Explore Further
 
-- [MinIO Golang Client SDK Quickstart Guide](https://min.io/docs/newtera/linux/developers/go/newtera-go.html)
-- [MinIO Java Client SDK Quickstart Guide](https://min.io/docs/newtera/linux/developers/java/newtera-java.html)
-- [MinIO JavaScript Client SDK Quickstart Guide](https://min.io/docs/newtera/linux/developers/javascript/newtera-javascript.html)
+- [Newtera Golang Client SDK Quickstart Guide](https://min.io/docs/newtera/linux/developers/go/newtera-go.html)
+- [Newtera Java Client SDK Quickstart Guide](https://min.io/docs/newtera/linux/developers/java/newtera-java.html)
+- [Newtera JavaScript Client SDK Quickstart Guide](https://min.io/docs/newtera/linux/developers/javascript/newtera-javascript.html)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# MinIO Python Library for Amazon S3 Compatible Cloud Storage, (C)
-# 2020 MinIO, Inc.
+# Newtera Python Library for Newtera TDM, (C)
+# 2020 Newtera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,14 +17,13 @@
 # pylint: disable=too-many-lines
 
 """
-Response of ListBuckets, ListObjects, ListObjectsV2 and ListObjectVersions API.
+Response of ListBuckets, ListObjects, API.
 """
 
 from __future__ import absolute_import, annotations
 
 from datetime import datetime
-from typing import Type, TypeVar, cast
-from urllib.parse import unquote_plus
+from typing import TypeVar
 from xml.etree import ElementTree as ET
 
 from urllib3._collections import HTTPHeaderDict
@@ -34,9 +33,8 @@ try:
 except ImportError:
     from urllib3.response import HTTPResponse as BaseHTTPResponse
 
-from .time import from_iso8601utc
-from .xml import find, findall, findtext
-
+import json
+from types import SimpleNamespace
 
 class Bucket:
     """Bucket information."""
@@ -180,106 +178,93 @@ class Object:
         """Get content type."""
         return self._content_type
 
-    @classmethod
-    def fromxml(
-            cls: Type[B],
-            element: ET.Element,
-            bucket_name: str,
-            is_delete_marker: bool = False,
-            encoding_type: str | None = None,
-    ) -> B:
-        """Create new object with values from XML element."""
-        tag = findtext(element, "LastModified")
-        last_modified = None if tag is None else from_iso8601utc(tag)
+class ObjectModel:
+    """Object model."""
 
-        tag = findtext(element, "ETag")
-        etag = None if tag is None else tag.replace('"', "")
+    def __init__(  # pylint: disable=too-many-arguments
+            self,
+            id: str,
+            name: str,
+            description: str |None,
+            created: datetime | None,
+            modified: datetime | None,
+            size: str | None,
+            type: str | None,
+            suffix: str | None,
+            instanceId: str | None,
+            className: str | None,
+            creator: str | None,
+    ):
+        self._id = id
+        self._name = name
+        self._description = description
+        self._created = created
+        self._modified = modified
+        self._size = size
+        self._type = type
+        self._suffix = suffix
+        self._instanceId = instanceId
+        self._className = className
+        self._creator = creator
 
-        tag = findtext(element, "Size")
-        size = None if tag is None else int(tag)
+    @property
+    def id(self) -> str:
+        """Get id."""
+        return self._id
 
-        elem = find(element, "Owner")
-        owner_id, owner_name = (
-            (None, None) if elem is None
-            else (findtext(elem, "ID"), findtext(elem, "DisplayName"))
-        )
+    @property
+    def name(self) -> str | None:
+        """Get object name."""
+        return self._name
 
-        elems: ET.Element | list = find(element, "UserMetadata") or []
-        metadata: dict[str, str] = {}
-        for child in elems:
-            key = child.tag.split("}")[1] if "}" in child.tag else child.tag
-            metadata[key] = child.text or ""
+    @property
+    def created(self) -> datetime | None:
+        """Get created time."""
+        return self._created
 
-        object_name = cast(str, findtext(element, "Key", True))
-        if encoding_type == "url":
-            object_name = unquote_plus(object_name)
+    @property
+    def modified(self) -> datetime | None:
+        """Get created time."""
+        return self._modified
 
-        return cls(
-            bucket_name,
-            object_name,
-            last_modified=last_modified,
-            etag=etag,
-            size=size,
-            version_id=findtext(element, "VersionId"),
-            is_latest=findtext(element, "IsLatest"),
-            storage_class=findtext(element, "StorageClass"),
-            owner_id=owner_id,
-            owner_name=owner_name,
-            metadata=metadata,
-            is_delete_marker=is_delete_marker,
-        )
+    @property
+    def size(self) -> str | None:
+        """Get size."""
+        return self._size
+
+    @property
+    def type(self) -> str | None:
+        """Get is-latest flag."""
+        return self._type
+
+    @property
+    def suffix(self) -> str | None:
+        """Get object suffix."""
+        return self._suffix
+
+    @property
+    def className(self) -> str | None:
+        """Get class name."""
+        return self._className
+
+    @property
+    def creator(self) -> str | None:
+        """Get creator name."""
+        return self._creator
 
 
 def parse_list_objects(
         response: BaseHTTPResponse,
         bucket_name: str | None = None,
-) -> tuple[list[Object], bool, str | None, str | None]:
-    """Parse ListObjects/ListObjectsV2/ListObjectVersions response."""
-    element = ET.fromstring(response.data.decode())
-    bucket_name = cast(str, findtext(element, "Name", True))
-    encoding_type = findtext(element, "EncodingType")
-    elements = findall(element, "Contents")
-    objects = [
-        Object.fromxml(tag, bucket_name, encoding_type=encoding_type)
-        for tag in elements
-    ]
-    marker = objects[-1].object_name if objects else None
+) -> list[Object]:
 
-    elements = findall(element, "Version")
-    objects += [
-        Object.fromxml(tag, bucket_name, encoding_type=encoding_type)
-        for tag in elements
-    ]
+    objectList = []
+    jsonData = json.loads(response.data, object_hook=lambda d: SimpleNamespace(**d))
 
-    elements = findall(element, "CommonPrefixes")
-    objects += [
-        Object(
-            bucket_name, unquote_plus(findtext(tag, "Prefix", True) or "")
-            if encoding_type == "url" else findtext(tag, "Prefix", True)
-        ) for tag in elements
-    ]
+    for o in jsonData.files:
+        obj = ObjectModel(o.id, o.name, o.description, o.created, o.modified, o.size, o.type, o.suffix, o.instanceId, o.className, o.creator)
+        objectList.append(obj)
 
-    elements = findall(element, "DeleteMarker")
-    objects += [
-        Object.fromxml(tag, bucket_name, is_delete_marker=True,
-                       encoding_type=encoding_type)
-        for tag in elements
-    ]
-
-    is_truncated = (findtext(element, "IsTruncated") or "").lower() == "true"
-    key_marker = findtext(element, "NextKeyMarker")
-    if key_marker and encoding_type == "url":
-        key_marker = unquote_plus(key_marker)
-    version_id_marker = findtext(element, "NextVersionIdMarker")
-    continuation_token = findtext(element, "NextContinuationToken")
-    if key_marker is not None:
-        continuation_token = key_marker
-    if continuation_token is None:
-        continuation_token = findtext(element, "NextMarker")
-        if continuation_token and encoding_type == "url":
-            continuation_token = unquote_plus(continuation_token)
-    if continuation_token is None and is_truncated:
-        continuation_token = marker
-    return objects, is_truncated, continuation_token, version_id_marker
+    return objectList
 
 

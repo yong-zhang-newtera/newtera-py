@@ -48,7 +48,7 @@ EOF
 ```
 
 #### Sign
-Sign the release artifacts, this step requires you to have access to MinIO's trusted private key.
+Sign the release artifacts, this step requires you to have access to Newtera's trusted private key.
 ```sh
 $ export GNUPGHOME=/media/${USER}/newtera/trusted
 $ gpg --detach-sign -a dist/newtera-2.2.5.tar.gz
