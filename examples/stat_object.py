@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# MinIO Python Library for Amazon S3 Compatible Cloud Storage,
-# (C) 2015 MinIO, Inc.
+# Newtera Python Library for Newtera TDM,
+# (C) 2024 Newtera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ client = Newtera(
 )
 
 # Get object information.
-result = client.stat_object("my-bucket", "my-object")
+result = client.stat_object("tdm", "my-object")
 print(
     "last-modified: {0}, size: {1}".format(
         result.last_modified, result.size,
@@ -32,7 +32,7 @@ print(
 
 # Get object information of version-ID.
 result = client.stat_object(
-    "my-bucket", "my-object",
+    "tdm", "my-object",
 )
 print(
     "last-modified: {0}, size: {1}".format(
@@ -42,7 +42,7 @@ print(
 
 # Get SSE-C encrypted object information.
 result = client.stat_object(
-    "my-bucket", "my-object",
+    "tdm", "my-object",
 )
 print(
     "last-modified: {0}, size: {1}".format(

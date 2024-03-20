@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-# MinIO Python Library for Amazon S3 Compatible Cloud Storage,
-# (C) 2015 MinIO, Inc.
+﻿# -*- coding: utf-8 -*-
+# Newtera Python Library for Newtera TDM,
+# (C) 2024 Newtera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,33 +22,18 @@ client = Newtera(
     secret_key="888",
 )
 
-# List objects information.
-objects = client.list_objects("my-bucket")
-for obj in objects:
-    print(obj)
+bucketName = "tdm"
+prefix = "Task-20230930-0023\慢充功能测试\电池循环充放电数据"
 
-# List objects information whose names starts with "my/prefix/".
-objects = client.list_objects("my-bucket", prefix="my/prefix/")
+# List objects information whose names starts with a prefix.
+objects = client.list_objects(bucketName, prefix=prefix)
 for obj in objects:
-    print(obj)
+    print(obj.id)
+    print(obj.name)
+    print(obj.created)
+    print(obj.modified)
+    print(obj.size)
+    print(obj.suffix)
+    print(obj.className)
+    print(obj.creator)
 
-# List objects information recursively.
-objects = client.list_objects("my-bucket", recursive=True)
-for obj in objects:
-    print(obj)
-
-# List objects information recursively whose names starts with
-# "my/prefix/".
-objects = client.list_objects(
-    "my-bucket", prefix="my/prefix/", recursive=True,
-)
-for obj in objects:
-    print(obj)
-
-# List objects information recursively after object name
-# "my/prefix/world/1".
-objects = client.list_objects(
-    "my-bucket", recursive=True, start_after="my/prefix/world/1",
-)
-for obj in objects:
-    print(obj)

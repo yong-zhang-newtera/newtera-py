@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# MinIO Python Library for Amazon S3 Compatible Cloud Storage,
-# (C) 2015 MinIO, Inc.
+# Newtera Python Library for Newtera TDM,
+# (C) 2024 Newtera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ client = Newtera(
 )
 
 # Remove object.
-client.remove_object("my-bucket", "my-object")
+client.remove_object("tdm", "my-object")
 
 # Remove version of an object.
 client.remove_object(
-    "my-bucket", "my-object",
+    "tdm", "my-object",
     version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
 )

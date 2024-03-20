@@ -1,8 +1,8 @@
 # Python Client API文档 [![Slack](https://slack.min.io/slack?type=svg)](https://slack.min.io)
 
-## 初使化MinIO Client对象。
+## 初使化Newtera Client对象。
 
-## MinIO
+## Newtera
 
 ```py
 from newtera import Newtera
@@ -29,7 +29,7 @@ s3Client = Newtera('s3.amazonaws.com',
 
 ## 1. 构造函数
 
-<a name="MinIO"></a>
+<a name="Newtera"></a>
 ### Newtera(endpoint, access_key=None, secret_key=None, secure=True, region=None, http_client=None)
 
 |   |
@@ -51,7 +51,7 @@ s3Client = Newtera('s3.amazonaws.com',
 
 __示例__
 
-### MinIO
+### Newtera
 
 ```py
 from newtera import Newtera
@@ -542,6 +542,6 @@ print(' '.join(curl_cmd))
 
 ## 5. 了解更多
 
-- [MinIO Golang Client SDK快速入门](https://min.io/docs/newtera/linux/developers/go/newtera-go.html)
-- [MinIO Java Client SDK快速入门](https://min.io/docs/newtera/linux/developers/java/newtera-java.html)
-- [MinIO JavaScript Client SDK快速入门](https://min.io/docs/newtera/linux/developers/javascript/newtera-javascript.html)
+- [Newtera Golang Client SDK快速入门](https://min.io/docs/newtera/linux/developers/go/newtera-go.html)
+- [Newtera Java Client SDK快速入门](https://min.io/docs/newtera/linux/developers/java/newtera-java.html)
+- [Newtera JavaScript Client SDK快速入门](https://min.io/docs/newtera/linux/developers/javascript/newtera-javascript.html)

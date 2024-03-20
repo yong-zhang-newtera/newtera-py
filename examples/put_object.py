@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# MinIO Python Library for Amazon S3 Compatible Cloud Storage,
-# (C) 2015 MinIO, Inc.
+# Newtera Python Library for Newtera TDM,
+# (C) 2024 Newtera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ client = Newtera(
 
 # Upload data.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -41,7 +41,7 @@ data = urlopen(
     "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.4.81.tar.xz",
 )
 result = client.put_object(
-    "my-bucket", "my-object", data, length=-1, part_size=10*1024*1024,
+    "tdm", "my-object", data, length=-1, part_size=10*1024*1024,
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -51,7 +51,7 @@ print(
 
 # Upload data with content-type.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
     content_type="application/csv",
 )
 print(
@@ -62,7 +62,7 @@ print(
 
 # Upload data with metadata.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
     metadata={"My-Project": "one"},
 )
 print(
@@ -73,7 +73,7 @@ print(
 
 # Upload data with customer key type of server-side encryption.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -83,7 +83,7 @@ print(
 
 # Upload data with KMS type of server-side encryption.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -93,7 +93,7 @@ print(
 
 # Upload data with S3 type of server-side encryption.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -106,7 +106,7 @@ date = datetime.utcnow().replace(
     hour=0, minute=0, second=0, microsecond=0,
 ) + timedelta(days=30)
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
 )
 print(
     "created {0} object; etag: {1}, version-id: {2}".format(
@@ -116,7 +116,7 @@ print(
 
 # Upload data with progress bar.
 result = client.put_object(
-    "my-bucket", "my-object", io.BytesIO(b"hello"), 5,
+    "tdm", "my-object", io.BytesIO(b"hello"), 5,
     progress=Progress(),
 )
 print(

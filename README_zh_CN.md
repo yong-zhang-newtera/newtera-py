@@ -1,8 +1,8 @@
-# 适用于与Amazon S3兼容的云存储的MinIO Python Library [![Slack](https://slack.min.io/slack?type=svg)](https://slack.min.io)
+# 适用于与Amazon S3兼容的云存储的Newtera Python Library [![Slack](https://slack.min.io/slack?type=svg)](https://slack.min.io)
 
-MinIO Python Client SDK提供简单的API来访问任何与Amazon S3兼容的对象存储服务。
+Newtera Python Client SDK提供简单的API来访问任何与Amazon S3兼容的对象存储服务。
 
-本文我们将学习如何安装MinIO client SDK，并运行一个python的示例程序。对于完整的API以及示例，请参考[Python Client API Reference](https://min.io/docs/newtera/linux/developers/python/API.html)。
+本文我们将学习如何安装Newtera client SDK，并运行一个python的示例程序。对于完整的API以及示例，请参考[Python Client API Reference](https://min.io/docs/newtera/linux/developers/python/API.html)。
 
 本文假设你已经有一个可运行的 [Python](https://www.python.org/downloads/)开发环境。
 
@@ -24,9 +24,9 @@ cd newtera-py
 python setup.py install
 ```
 
-## 初始化MinIO Client
+## 初始化Newtera Client
 
-MinIO client需要以下4个参数来连接MinIO对象存储服务。
+Newtera client需要以下4个参数来连接Newtera对象存储服务。
 
 | 参数     | 描述  |
 | :------- | :---- |
@@ -47,14 +47,14 @@ minioClient = Newtera('localhost:8080',
 
 
 ## 示例-文件上传
-本示例连接到一个MinIO对象存储服务，创建一个存储桶并上传一个文件到存储桶中。
+本示例连接到一个Newtera对象存储服务，创建一个存储桶并上传一个文件到存储桶中。
 
-我们在本示例中使用运行在 [https://localhost:8080](https://localhost:8080) 上的MinIO服务，你可以用这个服务来开发和测试。示例中的访问凭据是公开的。
+我们在本示例中使用运行在 [https://localhost:8080](https://localhost:8080) 上的Newtera服务，你可以用这个服务来开发和测试。示例中的访问凭据是公开的。
 
 #### file-uploader.py
 
 ```py
-# 引入MinIO包。
+# 引入Newtera包。
 from newtera import Newtera
 from newtera.error import (ResponseError, BucketAlreadyOwnedByYou,
                          BucketAlreadyExists)
@@ -143,7 +143,7 @@ mc ls play/maylogs/
 ## 了解更多
 
 * [完整文档](https://min.io/docs/newtera/kubernetes/upstream/index.html)
-* [MinIO Python SDK API文档](https://min.io/docs/newtera/linux/developers/python/API.html)
+* [Newtera Python SDK API文档](https://min.io/docs/newtera/linux/developers/python/API.html)
 
 ## 贡献
 

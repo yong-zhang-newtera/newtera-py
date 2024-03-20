@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """
-newtera - Newtera Python SDK for Amazon S3 Compatible Cloud Storage
+newtera - Newtera Python SDK for Newtera TDM
 
     >>> from newtera import Newtera
     >>> client = Newtera(

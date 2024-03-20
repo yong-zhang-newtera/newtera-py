@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{0ee8429b-f576-49e0-bc81-ae1d9b4110b8}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>examples\bucket_exists.py</StartupFile>
+    <StartupFile>examples\list_objects.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
