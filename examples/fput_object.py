@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # Newtera Python Library for Newtera TDM,
 # (C) 2024 Newtera, Inc.
 #
@@ -14,9 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime, timedelta
-
-from examples.progress import Progress
 from newtera import Newtera
 
 client = Newtera(
@@ -26,87 +23,16 @@ client = Newtera(
 )
 
 # Upload data.
-result = client.fput_object(
-    "tdm", "my-object", "my-filename",
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
+bucketName = "tdm"
+prefix = "Task-20230930-0023\慢充功能测试\电池循环充放电数据"
+object_name = "test-data.txt"
+temp_file = "my-filename"
 
-# Upload data with content-type.
 result = client.fput_object(
-    "tdm", "my-object", "my-filename",
-    content_type="application/csv",
+    bucketName, prefix, object_name, temp_file,
 )
 print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with metadata.
-result = client.fput_object(
-    "tdm", "my-object", "my-filename",
-    metadata={"My-Project": "one"},
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with customer key type of server-side encryption.
-result = client.fput_object(
-    "tdm", "my-object", "my-filename",
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with KMS type of server-side encryption.
-result = client.fput_object(
-    "tdm", "my-object", "my-filename",
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with S3 type of server-side encryption.
-result = client.fput_object(
-    "tdm", "my-object", "my-filename",
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with tags, retention and legal-hold.
-date = datetime.utcnow().replace(
-    hour=0, minute=0, second=0, microsecond=0,
-) + timedelta(days=30)
-result = client.fput_object(
-    "tdm", "my-object", "my-filename",
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with progress bar.
-result = client.fput_object(
-    "tdm", "my-object", "my-filename",
-    progress=Progress(),
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
+    "created {0} object;".format(
+        result.object_name,
     ),
 )

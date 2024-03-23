@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # Newtera Python Library for Newtera TDM,
 # (C) 2024 Newtera, Inc.
 #
@@ -23,5 +23,9 @@ client = Newtera(
 )
 
 # Download data of an object.
-client.fget_object("tdm", "my-object", "my-filename")
+bucketName = "tdm"
+prefix = "Task-20230930-0023\慢充功能测试\电池循环充放电数据"
+object_name = "test-data-001.txt"
+temp_file = "my-filename"
+client.fget_object(bucketName, prefix, object_name, temp_file)
 
