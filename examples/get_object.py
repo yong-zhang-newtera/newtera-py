@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # Newtera Python Library for Newtera TDM,
 # (C) 2024 Newtera, Inc.
 #
@@ -22,30 +22,14 @@ client = Newtera(
     secret_key="888",
 )
 
+bucketName = "tdm"
+prefix = "Task-20230930-0023\慢充功能测试\电池循环充放电数据"
+object_name = "test-data-001.txt"
+
 # Get data of an object.
 response = None
 try:
-    response = client.get_object("tdm", "my-object")
-    # Read data from response.
-finally:
-    response.close()
-    response.release_conn()
-
-# Get data of an object from offset and length.
-try:
-    response = client.get_object(
-        "tdm", "my-object", offset=512, length=1024,
-    )
-    # Read data from response.
-finally:
-    response.close()
-    response.release_conn()
-
-# Get data of an SSE-C encrypted object.
-try:
-    response = client.get_object(
-        "tdm", "my-object",
-    )
+    response = client.get_object(bucketName, prefix, object_name)
     # Read data from response.
 finally:
     response.close()

@@ -47,7 +47,7 @@ from .datatypes import (Object, ObjectModel,
 from .error import InvalidResponseError, NewteraError, ServerError
 from .helpers import (BaseURL, DictType, ObjectWriteResult, ProgressType,
                       check_bucket_name, check_non_empty_string,
-                      genheaders, get_part_info,
+                      get_part_info,
                       headers_to_strings, makedirs,
                       queryencode, read_part_data)
 
@@ -385,46 +385,27 @@ class Newtera:
     def fput_object(
             self,
             bucket_name: str,
+            prefix: str,
             object_name: str,
             file_path: str,
             content_type: str = "application/octet-stream",
-            metadata: DictType | None = None,
             progress: ProgressType | None = None,
-            part_size: int = 0,
     ) -> ObjectWriteResult:
         """
         Uploads data from a file to an object in a bucket.
 
         :param bucket_name: Name of the bucket.
+        :param prefix: Prefix of the object.
         :param object_name: Object name in the bucket.
         :param file_path: Name of file to upload.
         :param content_type: Content type of the object.
-        :param metadata: Any additional metadata to be uploaded along
-            with your PUT request.
-        :param sse: Server-side encryption.
         :param progress: A progress object
-        :param part_size: Multipart part size
-        :param num_parallel_uploads: Number of parallel uploads.
         :return: :class:`ObjectWriteResult` object.
 
         Example::
             # Upload data.
             result = client.fput_object(
-                "tdm", "my-object", "my-filename",
-            )
-
-            # Upload data with metadata.
-            result = client.fput_object(
-                "tdm", "my-object", "my-filename",
-                metadata={"My-Project": "one"},
-            )
-
-            # Upload data with tags, retention and legal-hold.
-            date = datetime.utcnow().replace(
-                hour=0, minute=0, second=0, microsecond=0,
-            ) + timedelta(days=30)
-            result = client.fput_object(
-                "tdm", "my-object", "my-filename",
+                "tdm", "my-prefix", "my-object", "my-filename",
             )
         """
 
@@ -432,19 +413,18 @@ class Newtera:
         with open(file_path, "rb") as file_data:
             return self.put_object(
                 bucket_name,
+                prefix,
                 object_name,
                 file_data,
                 file_size,
                 content_type=content_type,
-                metadata=cast(Union[DictType, None], metadata),
                 progress=progress,
-                part_size=part_size,
             )
 
     def fget_object(
             self,
             bucket_name: str,
-            object_prefix: str,
+            prefix: str,
             object_name: str,
             file_path: str,
             request_headers: DictType | None = None,
@@ -470,6 +450,7 @@ class Newtera:
         """
         check_bucket_name(bucket_name)
         check_non_empty_string(object_name)
+        check_non_empty_string(prefix)
 
         if os.path.isdir(file_path):
             raise ValueError(f"file {file_path} is a directory")
@@ -479,20 +460,15 @@ class Newtera:
 
         stat = self.stat_object(
             bucket_name,
-            object_prefix,
+            prefix,
             object_name,
-        )
-
-        etag = queryencode(cast(str, stat.etag))
-        # Write to a temporary file "file_path.part.newtera" before saving.
-        tmp_file_path = (
-            tmp_file_path or f"{file_path}.{etag}.part.newtera"
         )
 
         response = None
         try:
             response = self.get_object(
                 bucket_name,
+                prefix,
                 object_name,
                 request_headers=request_headers,
             )
@@ -501,6 +477,11 @@ class Newtera:
                 # Set progress bar length and object name before upload
                 length = int(response.headers.get('content-length', 0))
                 progress.set_meta(object_name=object_name, total_length=length)
+
+             # Write to a temporary file "file_path.part.newtera" before saving.
+            tmp_file_path = (
+                tmp_file_path or f"{file_path}.part.newtera"
+            )
 
             with open(tmp_file_path, "wb") as tmp_file:
                 for data in response.stream(amt=1024*1024):
@@ -519,12 +500,11 @@ class Newtera:
     def get_object(
             self,
             bucket_name: str,
+            prefix: str,
             object_name: str,
             offset: int = 0,
             length: int = 0,
             request_headers: DictType | None = None,
-            version_id: str | None = None,
-            extra_query_params: DictType | None = None,
     ) -> BaseHTTPResponse:
         """
         Get data of an object. Returned response should be closed after use to
@@ -532,14 +512,12 @@ class Newtera:
         call `response.release_conn()` explicitly.
 
         :param bucket_name: Name of the bucket.
+        :param prefix: Prefix of the object.
         :param object_name: Object name in the bucket.
         :param offset: Start byte position of object data.
         :param length: Number of bytes of object data from offset.
         :param request_headers: Any additional headers to be added with GET
                                 request.
-        :param ssec: Server-side encryption customer key.
-        :param version_id: Version-ID of the object.
-        :param extra_query_params: Extra query parameters for advanced usage.
         :return: :class:`urllib3.response.BaseHTTPResponse` object.
 
         Example::
@@ -550,41 +528,10 @@ class Newtera:
             finally:
                 response.close()
                 response.release_conn()
-
-            # Get data of an object of version-ID.
-            try:
-                response = client.get_object(
-                    "tdm", "my-object",
-                    version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
-                )
-                # Read data from response.
-            finally:
-                response.close()
-                response.release_conn()
-
-            # Get data of an object from offset and length.
-            try:
-                response = client.get_object(
-                    "tdm", "my-object", offset=512, length=1024,
-                )
-                # Read data from response.
-            finally:
-                response.close()
-                response.release_conn()
-
-            # Get data of an SSE-C encrypted object.
-            try:
-                response = client.get_object(
-                    "tdm", "my-object",
-                    ssec=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
-                )
-                # Read data from response.
-            finally:
-                response.close()
-                response.release_conn()
         """
         check_bucket_name(bucket_name)
         check_non_empty_string(object_name)
+        check_non_empty_string(prefix)
 
         headers = cast(DictType, {})
         headers.update(request_headers or {})
@@ -593,9 +540,8 @@ class Newtera:
             end = (offset + length - 1) if length else ""
             headers['Range'] = f"bytes={offset}-{end}"
 
-        if version_id:
-            extra_query_params = extra_query_params or {}
-            extra_query_params["versionId"] = version_id
+        query_params = {}
+        query_params["prefix"] = prefix or ""
 
         return self._execute(
             "GET",
@@ -603,19 +549,22 @@ class Newtera:
             bucket_name,
             object_name,
             headers=cast(DictType, headers),
-            query_params=extra_query_params,
+            query_params=query_params,
             preload_content=False,
         )
 
     def _put_object(
             self,
             bucket_name: str,
+            prefix: str,
             object_name: str,
             data: bytes,
             headers: DictType | None,
             query_params: DictType | None = None,
     ) -> ObjectWriteResult:
         """Execute PutObject Newtera TDM API."""
+        query_params = {}
+        query_params["prefix"] = prefix or ""
         response = self._execute(
             "PUT",
             "/api/blob/objects/",
@@ -628,20 +577,19 @@ class Newtera:
         )
         return ObjectWriteResult(
             bucket_name,
+            prefix,
             object_name,
-            response.headers.get("x-amz-version-id"),
-            response.headers.get("etag", "").replace('"', ""),
             response.headers,
         )
 
     def put_object(
         self,
         bucket_name: str,
+        prefix: str,
         object_name: str,
         data: BinaryIO,
         length: int,
         content_type: str = "application/octet-stream",
-        metadata: DictType | None = None,
         progress: ProgressType | None = None,
         part_size: int = 0,
     ) -> ObjectWriteResult:
@@ -649,39 +597,24 @@ class Newtera:
         Uploads data from a stream to an object in a bucket.
 
         :param bucket_name: Name of the bucket.
+        :param prefix: Prefix of the object.
         :param object_name: Object name in the bucket.
         :param data: An object having callable read() returning bytes object.
         :param length: Data size; -1 for unknown size and set valid part_size.
         :param content_type: Content type of the object.
-        :param metadata: Any additional metadata to be uploaded along
-            with your PUT request.
         :param progress: A progress object;
-        :param part_size: Multipart part size.
-        :param num_parallel_uploads: Number of parallel uploads.
         :return: :class:`ObjectWriteResult` object.
 
         Example::
             # Upload data.
             result = client.put_object(
-                "tdm", "my-object", io.BytesIO(b"hello"), 5,
-            )
-
-            # Upload data with metadata.
-            result = client.put_object(
-                "tdm", "my-object", io.BytesIO(b"hello"), 5,
-                metadata={"My-Project": "one"},
-            )
-
-            # Upload data with tags, retention and legal-hold.
-            date = datetime.utcnow().replace(
-                hour=0, minute=0, second=0, microsecond=0,
-            ) + timedelta(days=30)
-            result = client.put_object(
-                "tdm", "my-object", io.BytesIO(b"hello"), 5,
+                "tdm", "my-prefix", "my-object", io.BytesIO(b"hello"), 5,
             )
         """
         check_bucket_name(bucket_name)
         check_non_empty_string(object_name)
+        check_non_empty_string(prefix)
+
         if not callable(getattr(data, "read")):
             raise ValueError("input data must have callable read()")
         part_size, part_count = get_part_info(length, part_size)
@@ -689,7 +622,7 @@ class Newtera:
             # Set progress bar length and object name before upload
             progress.set_meta(object_name=object_name, total_length=length)
 
-        headers = genheaders(metadata)
+        headers = {}
         headers["Content-Type"] = content_type or "application/octet-stream"
 
         object_size = length
@@ -732,7 +665,7 @@ class Newtera:
 
                 if part_count == 1:
                     return self._put_object(
-                        bucket_name, object_name, part_data, headers,
+                        bucket_name, prefix, object_name, part_data, headers,
                     )
         except Exception as exc:
             if upload_id:
@@ -767,102 +700,77 @@ class Newtera:
     def stat_object(
             self,
             bucket_name: str,
-            object_prefix: str,
+            prefix: str,
             object_name: str,
             extra_headers: DictType | None = None,
-            extra_query_params: DictType | None = None,
     ) -> Object:
         """
         Get object information of an object.
 
         :param bucket_name: Name of the bucket.
+        :param prefix: Object name starts with prefix.
         :param object_name: Object name in the bucket.
         :param extra_headers: Extra HTTP headers for advanced usage.
-        :param extra_query_params: Extra query parameters for advanced usage.
-        :return: :class:`Object <Object>`.
+        :return: :class:`ObjectModel <ObjectModel>`.
 
         Example::
             # Get object information.
-            result = client.stat_object("tdm", "my-object")
-
-            # Get object information of version-ID.
-            result = client.stat_object(
-                "tdm", "my-object",
-                version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
-            )
-
-            # Get SSE-C encrypted object information.
-            result = client.stat_object(
-                "tdm", "my-object",
-                ssec=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
-            )
+            result = client.stat_object("tdm", "prefix", "my-object")
         """
 
         check_bucket_name(bucket_name)
         check_non_empty_string(object_name)
+        check_non_empty_string(prefix)
 
         headers = cast(DictType, {})
         if extra_headers:
             headers.update(extra_headers)
 
-        query_params = extra_query_params or {}
         response = self._execute(
             "HEAD",
             "/api/blob/objects/",
             bucket_name,
             object_name,
             headers=headers,
-            query_params=query_params,
+            query_params={"prefix": prefix},
         )
 
-        value = response.headers.get("last-modified")
-        if value is not None:
-            last_modified = time.from_http_header(value)
-        else:
-            last_modified = None
-
-        return ObjectModel(
+        return Object(
             bucket_name,
             object_name,
-            last_modified=last_modified,
-            etag=response.headers.get("etag", "").replace('"', ""),
-            size=int(response.headers.get("content-length", "0")),
-            content_type=response.headers.get("content-type"),
+            size=int(response.headers.get("Length", "0")),
+            content_type=response.headers.get("ContentType"),
             metadata=response.headers,
-            version_id=response.headers.get("x-amz-version-id"),
         )
 
     def remove_object(
         self,
         bucket_name: str,
+        prefix: str,
         object_name: str,
-        version_id: str | None = None
     ):
         """
         Remove an object.
 
         :param bucket_name: Name of the bucket.
+        :param prefix: Object name starts with prefix.
         :param object_name: Object name in the bucket.
         :param version_id: Version ID of the object.
 
         Example::
             # Remove object.
-            client.remove_object("tdm", "my-object")
-
-            # Remove version of an object.
-            client.remove_object(
-                "tdm", "my-object",
-                version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
-            )
+            client.remove_object("tdm", "my-prefix", "my-object")
         """
         check_bucket_name(bucket_name)
         check_non_empty_string(object_name)
+        check_non_empty_string(prefix)
+
         self._execute(
             "DELETE",
             "/api/blob/objects/",
             bucket_name,
             object_name,
-            query_params={"versionId": version_id} if version_id else None,
+            query_params={"prefix": prefix},
         )
 
     def _list_objects(

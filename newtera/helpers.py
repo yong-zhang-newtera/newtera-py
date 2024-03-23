@@ -310,15 +310,6 @@ def normalize_headers(headers: DictType | None) -> DictType:
     headers.update(_metadata_to_headers(user_metadata))
     return headers
 
-
-def genheaders(
-        headers: DictType | None,
-) -> DictType:
-    """Generate headers for given parameters."""
-    headers = normalize_headers(headers)
-    return headers
-
-
 def _parse_url(endpoint: str) -> urllib.parse.SplitResult:
     """Parse url string."""
 
@@ -463,20 +454,16 @@ class ObjectWriteResult:
     def __init__(
             self,
             bucket_name: str,
+            prefix: str,
             object_name: str,
-            version_id: str | None,
-            etag: str | None,
             http_headers: HTTPHeaderDict,
             last_modified: datetime | None = None,
-            location: str | None = None,
     ):
         self._bucket_name = bucket_name
+        self._prefix = prefix
         self._object_name = object_name
-        self._version_id = version_id
-        self._etag = etag
         self._http_headers = http_headers
         self._last_modified = last_modified
-        self._location = location
 
     @property
     def bucket_name(self) -> str:
@@ -489,14 +476,9 @@ class ObjectWriteResult:
         return self._object_name
 
     @property
-    def version_id(self) -> str | None:
-        """Get version ID."""
-        return self._version_id
-
-    @property
-    def etag(self) -> str | None:
-        """Get etag."""
-        return self._etag
+    def prefix(self) -> str | None:
+        """Get Prefix."""
+        return self._prefix
 
     @property
     def http_headers(self) -> HTTPHeaderDict:
@@ -507,8 +489,3 @@ class ObjectWriteResult:
     def last_modified(self) -> datetime | None:
         """Get last-modified time."""
         return self._last_modified
-
-    @property
-    def location(self) -> str | None:
-        """Get location."""
-        return self._location

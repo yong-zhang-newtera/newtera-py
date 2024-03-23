@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # Newtera Python Library for Newtera TDM,
 # (C) 2024 Newtera, Inc.
 #
@@ -15,11 +15,8 @@
 # limitations under the License.
 
 import io
-from datetime import datetime, timedelta
-from urllib.request import urlopen
-
-from examples.progress import Progress
 from newtera import Newtera
+
 client = Newtera(
     "localhost:8080",
     access_key="demo1",
@@ -27,100 +24,15 @@ client = Newtera(
 )
 
 # Upload data.
-result = client.put_object(
-    "tdm", "my-object", io.BytesIO(b"hello"), 5,
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
+bucketName = "tdm"
+prefix = "Task-20230930-0023\慢充功能测试\电池循环充放电数据"
+object_name = "test-data.txt"
 
-# Upload unknown sized data.
-data = urlopen(
-    "https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.4.81.tar.xz",
-)
 result = client.put_object(
-    "tdm", "my-object", data, length=-1, part_size=10*1024*1024,
+    bucketName, prefix, object_name, io.BytesIO(b"hello"), 5,
 )
 print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with content-type.
-result = client.put_object(
-    "tdm", "my-object", io.BytesIO(b"hello"), 5,
-    content_type="application/csv",
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with metadata.
-result = client.put_object(
-    "tdm", "my-object", io.BytesIO(b"hello"), 5,
-    metadata={"My-Project": "one"},
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with customer key type of server-side encryption.
-result = client.put_object(
-    "tdm", "my-object", io.BytesIO(b"hello"), 5,
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with KMS type of server-side encryption.
-result = client.put_object(
-    "tdm", "my-object", io.BytesIO(b"hello"), 5,
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with S3 type of server-side encryption.
-result = client.put_object(
-    "tdm", "my-object", io.BytesIO(b"hello"), 5,
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with tags, retention and legal-hold.
-date = datetime.utcnow().replace(
-    hour=0, minute=0, second=0, microsecond=0,
-) + timedelta(days=30)
-result = client.put_object(
-    "tdm", "my-object", io.BytesIO(b"hello"), 5,
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with progress bar.
-result = client.put_object(
-    "tdm", "my-object", io.BytesIO(b"hello"), 5,
-    progress=Progress(),
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
+    "created {0} object".format(
+        result.object_name,
     ),
 )
