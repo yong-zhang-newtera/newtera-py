@@ -36,8 +36,7 @@ MAX_PART_SIZE = 5 * 1024 * 1024 * 1024  # 5GiB
 MIN_PART_SIZE = 5 * 1024 * 1024  # 5MiB
 
 _BUCKET_NAME_REGEX = re.compile(r'^[a-z0-9][a-z0-9\.\-]{1,61}[a-z0-9]$')
-_OLD_BUCKET_NAME_REGEX = re.compile(r'^[a-z0-9][a-z0-9_\.\-\:]{1,61}[a-z0-9]$',
-                                    re.IGNORECASE)
+
 _IPV4_REGEX = re.compile(
     r'^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}'
     r'(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$')
@@ -196,9 +195,6 @@ def check_bucket_name(
     if strict:
         if not _BUCKET_NAME_REGEX.match(bucket_name):
             raise ValueError(f'invalid bucket name {bucket_name}')
-    else:
-        if not _OLD_BUCKET_NAME_REGEX.match(bucket_name):
-            raise ValueError(f'invalid bucket name {bucket_name}')
 
     if _IPV4_REGEX.match(bucket_name):
         raise ValueError(f'bucket name {bucket_name} must not be formatted '
@@ -219,22 +215,6 @@ def check_non_empty_string(string: str | bytes):
         raise TypeError() from exc
 
 
-def is_valid_policy_type(policy: str | bytes):
-    """
-    Validate if policy is type str
-
-    :param policy: S3 style Bucket policy.
-    :return: True if policy parameter is of a valid type, 'string'.
-    Raise :exc:`TypeError` otherwise.
-    """
-    if not isinstance(policy, (str, bytes)):
-        raise TypeError("policy must be str or bytes type")
-
-    check_non_empty_string(policy)
-
-    return True
-
-
 def url_replace(
         url: urllib.parse.SplitResult,
         scheme: str | None = None,
@@ -251,64 +231,6 @@ def url_replace(
         query if query is not None else url.query,
         fragment if fragment is not None else url.fragment,
     )
-
-
-def _metadata_to_headers(metadata: DictType) -> dict[str, list[str]]:
-    """Convert user metadata to headers."""
-    def normalize_key(key: str) -> str:
-        if not key.lower().startswith("x-amz-meta-"):
-            key = "X-Amz-Meta-" + key
-        return key
-
-    def to_string(value) -> str:
-        value = str(value)
-        try:
-            value.encode("us-ascii")
-        except UnicodeEncodeError as exc:
-            raise ValueError(
-                f"unsupported metadata value {value}; "
-                f"only US-ASCII encoded characters are supported"
-            ) from exc
-        return value
-
-    def normalize_value(values: str | list[str] | tuple[str]) -> list[str]:
-        if not isinstance(values, (list, tuple)):
-            values = [values]
-        return [to_string(value) for value in values]
-
-    return {
-        normalize_key(key): normalize_value(value)
-        for key, value in (metadata or {}).items()
-    }
-
-
-def normalize_headers(headers: DictType | None) -> DictType:
-    """Normalize headers by prefixing 'X-Amz-Meta-' for user metadata."""
-    headers = {str(key): value for key, value in (headers or {}).items()}
-
-    def guess_user_metadata(key: str) -> bool:
-        key = key.lower()
-        return not (
-            key.startswith("x-amz-") or
-            key in [
-                "cache-control",
-                "content-encoding",
-                "content-type",
-                "content-disposition",
-                "content-language",
-            ]
-        )
-
-    user_metadata = {
-        key: value for key, value in headers.items()
-        if guess_user_metadata(key)
-    }
-
-    # Remove guessed user metadata.
-    _ = [headers.pop(key) for key in user_metadata]
-
-    headers.update(_metadata_to_headers(user_metadata))
-    return headers
 
 def _parse_url(endpoint: str) -> urllib.parse.SplitResult:
     """Parse url string."""

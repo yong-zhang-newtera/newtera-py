@@ -1,4 +1,4 @@
-# Newtera Python Client SDK for Newtera TDM
+# Newtera Python Client SDK for Newtera TDM service
 
 The Newtera Python Client SDK provides high level APIs to access any Newtera TDM service.
 
@@ -6,10 +6,9 @@ This Quickstart Guide covers how to install the Newtera client SDK, connect to t
 
 The example below uses:
 - [Python version 3.7+](https://www.python.org/downloads/) 
-- The [Newtera `mc` command line tool](https://min.io/docs/Newtera/linux/reference/Newtera-mc.html)
 - The Newtera TDM local server
 
-For a complete list of APIs and examples, see the [Python Client API Reference](https://newtera.net/docs/Newtera/developers/python/API.html)
+For a complete list of APIs and examples, see the [Python Client API Reference](http://newtera.net/docs/newtera/linux/developers/python/API.html)
 
 ## Install the Newtera Python SDK
 
@@ -120,16 +119,7 @@ Created bucket python-test-bucket
 /tmp/test-file.txt successfully uploaded as object my-test-file.txt to bucket python-test-bucket
 ```
 
-3. Verify the uploaded file with `mc ls`:
-
-```sh
-mc ls play/python-test-bucket
-[2023-11-03 22:18:54 UTC]  20KiB STANDARD my-test-file.txt
-```
-
-## More References
-
-* [Examples](https://github.com/Newtera/Newtera-py/tree/master/examples)
+3. Verify the uploaded file by logging in to Newtera Web Client and navigating to the data packet with the prefix as the path:
 
 
 ## License

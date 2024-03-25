@@ -25,7 +25,7 @@ from __future__ import absolute_import, annotations
 
 import os
 from datetime import datetime, timedelta
-from typing import BinaryIO, Iterator, TextIO, Union, cast
+from typing import BinaryIO, TextIO, Union, cast
 from urllib.parse import urlunsplit
 
 import urllib3
@@ -39,7 +39,7 @@ except ImportError:
 
 from urllib3.util import Timeout
 
-from . import __title__, __version__, time
+from . import __title__, __version__
 from .credentials import StaticProvider
 from .credentials.providers import Provider
 from .datatypes import (Object, ObjectModel,
@@ -49,7 +49,7 @@ from .helpers import (BaseURL, DictType, ObjectWriteResult, ProgressType,
                       check_bucket_name, check_non_empty_string,
                       get_part_info,
                       headers_to_strings, makedirs,
-                      queryencode, read_part_data)
+                      read_part_data)
 
 
 class Newtera:
@@ -624,6 +624,7 @@ class Newtera:
 
         headers = {}
         headers["Content-Type"] = content_type or "application/octet-stream"
+        headers["newtera-meta-user"] = self._provider.retrieve().access_key
 
         object_size = length
         uploaded_size = 0
@@ -678,7 +679,7 @@ class Newtera:
             self,
             bucket_name: str,
             prefix: str | None = None,
-    ):
+    ) -> list[ObjectModel]:
         """
         Lists object information of a bucket.
 
@@ -777,7 +778,7 @@ class Newtera:
             self,
             bucket_name: str,
             prefix: str | None = None,
-    ) -> list[Object]:
+    ) -> list[ObjectModel]:
 
         check_bucket_name(bucket_name)
 

@@ -22,11 +22,9 @@ newtera - Newtera Python SDK for Newtera TDM
     ...     access_key="demo1",
     ...     secret_key="888",
     ... )
-    >>> buckets = client.list_buckets()
-    >>> for bucket in buckets:
-    ...     print(bucket.name, bucket.creation_date)
+    >>> buckets = client.bucket_exists()
 
-:copyright: (C) 2015-2020 Newtera, Inc.
+:copyright: (C) 2015-2024 Newtera, Inc.
 :license: Apache 2.0, see LICENSE for more details.
 """
 

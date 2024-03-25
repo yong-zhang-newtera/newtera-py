@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{0ee8429b-f576-49e0-bc81-ae1d9b4110b8}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>examples\fget_object.py</StartupFile>
+    <StartupFile>examples\put_object.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -33,10 +33,8 @@
     <Compile Include="newtera\credentials\providers.py" />
     <Compile Include="newtera\credentials\__init__.py" />
     <Compile Include="newtera\datatypes.py" />
-    <Compile Include="newtera\deleteobjects.py" />
     <Compile Include="newtera\error.py" />
     <Compile Include="newtera\helpers.py" />
-    <Compile Include="newtera\time.py" />
     <Compile Include="newtera\xml.py" />
     <Compile Include="newtera\__init__.py" />
     <Compile Include="setup.py" />
