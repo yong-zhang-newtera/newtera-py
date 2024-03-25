@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 # Newtera Python Library for Newtera TDM,
 # (C) 2024 Newtera, Inc.
 #
@@ -23,29 +23,14 @@ client = Newtera(
 )
 
 # Get object information.
-result = client.stat_object("tdm", "my-object")
+bucketName = "tdm"
+prefix = "Task-20230930-0023\慢充功能测试\电池循环充放电数据"
+object_name = "test-data-001.txt"
+
+result = client.stat_object(bucketName, prefix, object_name)
 print(
     "last-modified: {0}, size: {1}".format(
         result.last_modified, result.size,
     ),
 )
 
-# Get object information of version-ID.
-result = client.stat_object(
-    "tdm", "my-object",
-)
-print(
-    "last-modified: {0}, size: {1}".format(
-        result.last_modified, result.size,
-    ),
-)
-
-# Get SSE-C encrypted object information.
-result = client.stat_object(
-    "tdm", "my-object",
-)
-print(
-    "last-modified: {0}, size: {1}".format(
-        result.last_modified, result.size,
-    ),
-)

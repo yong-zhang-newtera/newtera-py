@@ -256,7 +256,7 @@ class ObjectModel:
 def parse_list_objects(
         response: BaseHTTPResponse,
         bucket_name: str | None = None,
-) -> list[Object]:
+) -> list[ObjectModel]:
 
     objectList = []
     jsonData = json.loads(response.data, object_hook=lambda d: SimpleNamespace(**d))

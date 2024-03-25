@@ -93,16 +93,3 @@ def findtext(
     return None if elem is None else (elem.text or "")
 
 
-A = TypeVar("A")
-
-
-class FromXmlType():
-    """typing stub for class with `fromxml` method"""
-
-    @classmethod
-    def fromxml(cls: Type[A], element: ET.Element) -> A:
-        """Create python object with values from XML element."""
-
-
-B = TypeVar("B", bound=FromXmlType)
-
