@@ -50,18 +50,16 @@ client = Newtera("localhost:8080",
 )
 ```
 
-## Example - File Uploader
+## Example - Upload a file
 
 This example does the following:
 
 - Connects to the Newtera TDM localhost server using the provided credentials.
 - Uploads a file named `test-file.txt` from `/tmp`, renaming it `my-test-file.txt`.
-- Verifies the file was created using [`mc ls`](https://min.io/docs/Newtera/linux/reference/Newtera-mc/mc-ls.html).
 
-### `file_uploader.py`
+### upload_file.py
 
 ```py
-# file_uploader.py Newtera Python SDK example
 from Newtera import Newtera
 from Newtera.error import NewteraError
 
@@ -77,7 +75,8 @@ def main():
     source_file = "/tmp/test-file.txt"
 
     # The destination bucket and filename on the Newtera server
-    bucket_name = "python-test-bucket"
+    bucket_name = "tdm"
+	prefix = "task001/test-item001/data-packet001"
     destination_file = "my-test-file.txt"
     
     # Make the bucket if it doesn't exist.
@@ -87,7 +86,7 @@ def main():
 
     # Upload the file, renaming it in the process
     client.fput_object(
-        bucket_name, destination_file, source_file,
+        bucket_name, prefix, destination_file, source_file,
     )
     print(
         source_file, "successfully uploaded as object",
@@ -106,22 +105,8 @@ To run this example:
 1. Create a file in `/tmp` named `test-file.txt`.
    To use a different path or filename, modify the value of `source_file`.
 
-2. Run `file_uploader.py` with the following command:
+2. Run `upload_file.py` with the following command:
 
 ```sh
-python file_uploader.py
+python upload_file.py
 ```
-
-If the bucket does not exist on the server, the output resembles the following:
-
-```sh
-Created bucket python-test-bucket
-/tmp/test-file.txt successfully uploaded as object my-test-file.txt to bucket python-test-bucket
-```
-
-3. Verify the uploaded file by logging in to Newtera Web Client and navigating to the data packet with the prefix as the path:
-
-
-## License
-
-This SDK is distributed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)

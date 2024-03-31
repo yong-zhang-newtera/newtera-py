@@ -29,10 +29,10 @@ newtera - Newtera Python SDK for Newtera TDM
 """
 
 __title__ = "newtera-py"
-__author__ = "Newtera, Inc."
+__author__ = "Newtera"
 __version__ = "1.0.0"
 __license__ = "Apache 2.0"
-__copyright__ = "Copyright 2024 Newtera, Inc."
+__copyright__ = "Copyright 2024 Newtera"
 
 # pylint: disable=unused-import,useless-import-alias
 from .api import Newtera as Newtera

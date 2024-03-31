@@ -18,7 +18,6 @@
 
 from __future__ import absolute_import, annotations
 
-from typing import Type, TypeVar
 from xml.etree import ElementTree as ET
 
 

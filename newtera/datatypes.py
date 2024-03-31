@@ -24,7 +24,6 @@ from __future__ import absolute_import, annotations
 
 from datetime import datetime
 from typing import TypeVar
-from xml.etree import ElementTree as ET
 
 from urllib3._collections import HTTPHeaderDict
 
@@ -255,7 +254,6 @@ class ObjectModel:
 
 def parse_list_objects(
         response: BaseHTTPResponse,
-        bucket_name: str | None = None,
 ) -> list[ObjectModel]:
 
     objectList = []
