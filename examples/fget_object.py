@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-# MinIO Python Library for Amazon S3 Compatible Cloud Storage,
-# (C) 2015 MinIO, Inc.
+﻿# -*- coding: utf-8 -*-
+# Newtera Python Library for Newtera TDM,
+# (C) 2024 Newtera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,26 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from minio import Minio
-from minio.sse import SseCustomerKey
+from newtera import Newtera
 
-client = Minio(
-    "play.min.io",
-    access_key="Q3AM3UQ867SPQQA43P2F",
-    secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+client = Newtera(
+    "localhost:8080",
+    access_key="demo1",
+    secret_key="888",
 )
 
 # Download data of an object.
-client.fget_object("my-bucket", "my-object", "my-filename")
+bucketName = "tdm"
+prefix = "Task-20230930-0023\慢充功能测试\电池循环充放电数据"
+object_name = "test-data-001.txt"
+temp_file = "my-filename"
+client.fget_object(bucketName, prefix, object_name, temp_file)
 
-# Download data of an object of version-ID.
-client.fget_object(
-    "my-bucket", "my-object", "my-filename",
-    version_id="dfbd25b3-abec-4184-a4e8-5a35a5c1174d",
-)
-
-# Download data of an SSE-C encrypted object.
-client.fget_object(
-    "my-bucket", "my-object", "my-filename",
-    ssec=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
-)

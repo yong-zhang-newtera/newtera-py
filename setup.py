@@ -1,5 +1,5 @@
-# MinIO Python Library for Amazon S3 Compatible Cloud Storage,
-# (C) 2015 MinIO, Inc.
+# Newtera Python Library for Newtera TDM,
+# (C) 2024 Newtera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ from setuptools import setup
 if sys.argv[-1] == "publish":
     sys.argv = sys.argv[:-1] + ["sdist", "upload"]
 
-with codecs.open("minio/__init__.py") as file:
+with codecs.open("newtera/__init__.py") as file:
     version = re.search(
         r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
         file.read(),
@@ -33,18 +33,16 @@ with codecs.open("README.md", encoding="utf-8") as file:
     readme = file.read()
 
 setup(
-    name="minio",
-    description="MinIO Python SDK for Amazon S3 Compatible Cloud Storage",
-    author="MinIO, Inc.",
-    url="https://github.com/minio/minio-py",
-    download_url="https://github.com/minio/minio-py/releases",
-    author_email="dev@min.io",
+    name="newtera",
+    description="Newtera Python SDK for Newtera TDM",
+    author="Newtera",
+    url="https://github.com/yong-zhang-newtera/newtera-py",
+    author_email="info@newtera.com",
     version=version,
     long_description_content_type="text/markdown",
-    package_dir={"minio": "minio"},
-    packages=["minio", "minio.credentials"],
-    install_requires=["certifi", "urllib3", "argon2-cffi",
-                      "pycryptodome", "typing-extensions"],
+    package_dir={"newtera": "newtera"},
+    packages=["newtera", "newtera.credentials"],
+    install_requires=["urllib3", "typing-extensions"],
     tests_require=[],
     license="Apache-2.0",
     classifiers=[

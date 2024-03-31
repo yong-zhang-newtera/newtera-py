@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# MinIO Python Library for Amazon S3 Compatible Cloud Storage,
-# (C) 2015 MinIO, Inc.
+# Newtera Python Library for Newtera TDM,
+# (C) 2024 Newtera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from minio import Minio
+from newtera import Newtera
 
-client = Minio(
-    "play.min.io",
-    access_key="Q3AM3UQ867SPQQA43P2F",
-    secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+client = Newtera(
+    "localhost:8080",
+    access_key="demo1",
+    secret_key="888",
 )
 
-if client.bucket_exists("my-bucket"):
-    print("my-bucket exists")
+if client.bucket_exists("tdm"):
+    print("tdm exists")
 else:
-    print("my-bucket does not exist")
+    print("tdm does not exist")

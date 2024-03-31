@@ -3,15 +3,14 @@ default: tests
 
 getdeps:
 	@echo "Installing required dependencies"
-	@pip install --user --upgrade autopep8 certifi pytest pylint urllib3 argon2-cffi pycryptodome typing-extensions mypy
+	@pip install --user --upgrade autopep8 pytest pylint urllib3 typing-extensions mypy
 
 check: getdeps
 	@echo "Running checks"
-	@pylint --reports=no --score=no --disable=R0401,R0801 minio/*py
-	@pylint --reports=no --score=no minio/credentials tests/functional
+	@pylint --reports=no --score=no --disable=R0401,R0801 newtera/*py
+	@pylint --reports=no --score=no newtera/credentials tests/functional
 	@isort --diff .
-	@find . -name "*.py" -exec autopep8 --diff --exit-code {} +
-	@mypy minio
+	@mypy newtera
 
 apply: getdeps
 	@isort .

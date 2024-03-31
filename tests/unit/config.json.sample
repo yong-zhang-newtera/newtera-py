@@ -2,9 +2,9 @@
 	"version": "8",
 	"hosts": {
 		"play": {
-			"url": "https://play.minio.io:9000",
-			"accessKey": "Q3AM3UQ867SPQQA43P2F",
-			"secretKey": "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+			"url": "https://play.newtera.io:9000",
+			"accessKey": "demo1",
+			"secretKey": "888",
 			"api": "S3v2"
 		},
 		"s3": {

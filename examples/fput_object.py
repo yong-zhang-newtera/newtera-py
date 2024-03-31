@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
-# MinIO Python Library for Amazon S3 Compatible Cloud Storage,
-# (C) 2015 MinIO, Inc.
+﻿# -*- coding: utf-8 -*-
+# Newtera Python Library for Newtera TDM,
+# (C) 2024 Newtera, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,110 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime, timedelta
+from newtera import Newtera
 
-from examples.progress import Progress
-from minio import Minio
-from minio.commonconfig import GOVERNANCE, Tags
-from minio.retention import Retention
-from minio.sse import SseCustomerKey, SseKMS, SseS3
-
-client = Minio(
-    "play.min.io",
-    access_key="Q3AM3UQ867SPQQA43P2F",
-    secret_key="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
+client = Newtera(
+    "localhost:8080",
+    access_key="demo1",
+    secret_key="888",
 )
 
 # Upload data.
-result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
+bucketName = "tdm"
+prefix = "Task-20230930-0023\慢充功能测试\电池循环充放电数据"
+object_name = "test-data.txt"
+temp_file = "my-filename"
 
-# Upload data with content-type.
 result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-    content_type="application/csv",
+    bucketName, prefix, object_name, temp_file,
 )
 print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with metadata.
-result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-    metadata={"My-Project": "one"},
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with customer key type of server-side encryption.
-result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-    sse=SseCustomerKey(b"32byteslongsecretkeymustprovided"),
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with KMS type of server-side encryption.
-result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-    sse=SseKMS("KMS-KEY-ID", {"Key1": "Value1", "Key2": "Value2"}),
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with S3 type of server-side encryption.
-result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-    sse=SseS3(),
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with tags, retention and legal-hold.
-date = datetime.utcnow().replace(
-    hour=0, minute=0, second=0, microsecond=0,
-) + timedelta(days=30)
-tags = Tags(for_object=True)
-tags["User"] = "jsmith"
-result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-    tags=tags,
-    retention=Retention(GOVERNANCE, date),
-    legal_hold=True,
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
-    ),
-)
-
-# Upload data with progress bar.
-result = client.fput_object(
-    "my-bucket", "my-object", "my-filename",
-    progress=Progress(),
-)
-print(
-    "created {0} object; etag: {1}, version-id: {2}".format(
-        result.object_name, result.etag, result.version_id,
+    "created {0} object;".format(
+        result.object_name,
     ),
 )
